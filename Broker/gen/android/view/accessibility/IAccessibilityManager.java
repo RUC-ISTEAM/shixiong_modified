@@ -1,8 +1,10 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: D:\\box\\Broker\\src\\android\\view\\accessibility\\IAccessibilityManager.aidl
+ * Original file: /Users/Kainny/学习/安卓/shixiong_modified/Broker/src/android/view/accessibility/IAccessibilityManager.aidl
  */
 package android.view.accessibility;
+//import android.view.IWindow;
+
 public interface IAccessibilityManager extends android.os.IInterface
 {
 /** Local-side IPC implementation stub class. */
@@ -52,13 +54,6 @@ reply.writeNoException();
 reply.writeInt(_result);
 return true;
 }
-case TRANSACTION_interrupt:
-{
-data.enforceInterface(DESCRIPTOR);
-this.interrupt();
-reply.writeNoException();
-return true;
-}
 }
 return super.onTransact(code, data, reply, flags);
 }
@@ -95,32 +90,8 @@ _data.recycle();
 }
 return _result;
 }
-//	boolean sendAccessibilityEvent(in BrokerAccessibilityEvent uiEvent);
-//	List<AccessibilityServiceInfo> getInstalledAccessibilityServiceList();
-//	List<AccessibilityServiceInfo> getEnabledAccessibilityServiceList(int feedbackType);
-
-@Override public void interrupt() throws android.os.RemoteException
-{
-android.os.Parcel _data = android.os.Parcel.obtain();
-android.os.Parcel _reply = android.os.Parcel.obtain();
-try {
-_data.writeInterfaceToken(DESCRIPTOR);
-mRemote.transact(Stub.TRANSACTION_interrupt, _data, _reply, 0);
-_reply.readException();
-}
-finally {
-_reply.recycle();
-_data.recycle();
-}
-}
 }
 static final int TRANSACTION_addClient = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
-static final int TRANSACTION_interrupt = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
 }
 public int addClient(android.view.accessibility.IAccessibilityManagerClient client) throws android.os.RemoteException;
-//	boolean sendAccessibilityEvent(in BrokerAccessibilityEvent uiEvent);
-//	List<AccessibilityServiceInfo> getInstalledAccessibilityServiceList();
-//	List<AccessibilityServiceInfo> getEnabledAccessibilityServiceList(int feedbackType);
-
-public void interrupt() throws android.os.RemoteException;
 }

@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: D:\\box\\Broker\\src\\android\\os\\IServiceManager.aidl
+ * Original file: /Users/Kainny/学习/安卓/shixiong_modified/Broker/src/android/os/IServiceManager.aidl
  */
 package android.os;
 public interface IServiceManager extends android.os.IInterface
@@ -81,6 +81,23 @@ data.enforceInterface(DESCRIPTOR);
 java.lang.String[] _result = this.listServices();
 reply.writeNoException();
 reply.writeStringArray(_result);
+return true;
+}
+case TRANSACTION_setSM:
+{
+data.enforceInterface(DESCRIPTOR);
+android.os.IBinder _arg0;
+_arg0 = data.readStrongBinder();
+this.setSM(_arg0);
+reply.writeNoException();
+return true;
+}
+case TRANSACTION_getSM:
+{
+data.enforceInterface(DESCRIPTOR);
+android.os.IBinder _result = this.getSM();
+reply.writeNoException();
+reply.writeStrongBinder(_result);
 return true;
 }
 }
@@ -171,14 +188,50 @@ _data.recycle();
 }
 return _result;
 }
+@Override public void setSM(android.os.IBinder SM) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeStrongBinder(SM);
+mRemote.transact(Stub.TRANSACTION_setSM, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+}
+@Override public android.os.IBinder getSM() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+android.os.IBinder _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_getSM, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readStrongBinder();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
+}
 }
 static final int TRANSACTION_getService = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
 static final int TRANSACTION_checkService = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
 static final int TRANSACTION_addService = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
 static final int TRANSACTION_listServices = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
+static final int TRANSACTION_setSM = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
+static final int TRANSACTION_getSM = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
 }
 public android.os.IBinder getService(java.lang.String name) throws android.os.RemoteException;
 public android.os.IBinder checkService(java.lang.String name) throws android.os.RemoteException;
 public void addService(java.lang.String name, android.os.IBinder service, boolean allowIsolated) throws android.os.RemoteException;
 public java.lang.String[] listServices() throws android.os.RemoteException;
+public void setSM(android.os.IBinder SM) throws android.os.RemoteException;
+public android.os.IBinder getSM() throws android.os.RemoteException;
 }

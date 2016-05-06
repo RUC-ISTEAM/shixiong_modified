@@ -1,22 +1,39 @@
 package android.os;
 
+import java.io.FileDescriptor;
+
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import broker.iser.ruc.edu.cn.Reflect;
 
 public class BrokerSystemManager {
-	
+	private static IBinder sServiceManager=null;
 	public static IServiceManager mBrokerSystemManager = new IServiceManager.Stub() {
 		int GET_SERVICE_TRANSACTION = IBinder.FIRST_CALL_TRANSACTION;
 		int CHECK_SERVICE_TRANSACTION = IBinder.FIRST_CALL_TRANSACTION+1;
 		int ADD_SERVICE_TRANSACTION = IBinder.FIRST_CALL_TRANSACTION+2;
 		int LIST_SERVICE_TRANSACTION = IBinder.FIRST_CALL_TRANSACTION+3;
 		int CHECK_SERVICES_TRANSACTION = IBinder.FIRST_CALL_TRANSACTION+4;
-
+		IBinder sService=null;
+		@Override
+        public void setSM(IBinder SM) throws RemoteException{
+            sServiceManager=SM;
+            Log.d("SM", "SM IN BROKERSYSTEMMANAGER BEEN SET");
+        }
+		@Override
+        public IBinder getSM() throws RemoteException{
+        	return sServiceManager;
+        }
 		@Override
 		public IBinder getService(String name) throws RemoteException {
-			Log.d("IBrokerSystemManager", "getService" + name);
-			return null;
+			Log.d("IBrokerSystemManager", "getService" + name);			
+			Reflect.setField("android.os.ServiceManager", "broker", null, sServiceManager);//set to real
+			System.out.println("I:change sServiceManager to real");
+			Reflect.invokeMethod("android.os.ServiceManager", "getService", sService, name);//return sService
+			System.out.println("II:getsServise");
+			Reflect.setField("android.os.ServiceManager", "broker", null,BrokerSystemManager.mBrokerSystemManager);//set to wrong
+			return sService;
 		}
 
 		@Override

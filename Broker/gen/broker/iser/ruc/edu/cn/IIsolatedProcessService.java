@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: D:\\box\\Broker\\src\\broker\\iser\\ruc\\edu\\cn\\IIsolatedProcessService.aidl
+ * Original file: /Users/Kainny/学习/安卓/shixiong_modified/Broker/src/broker/iser/ruc/edu/cn/IIsolatedProcessService.aidl
  */
 package broker.iser.ruc.edu.cn;
 public interface IIsolatedProcessService extends android.os.IInterface

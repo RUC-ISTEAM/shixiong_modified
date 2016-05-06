@@ -3,14 +3,16 @@ package broker.iser.ruc.edu.cn;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.BrokerSystemManager;
 import android.os.IBinder;
 import android.os.IServiceManager;
+import android.os.Parcel;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.accessibility.BrokerAccessibilityManager;
 import  android.os.Process;
+
 
 public class IsolatedProcessService extends Service {
 	public static Context context;
@@ -59,29 +61,17 @@ public class IsolatedProcessService extends Service {
 //		Log.d("test", mb.toString());
 		//mb.sayHello();
 		//IBinder brokerSystemService = mCallBacks.getBroadcastItem(0).asBinder();
-//
-//		Object backup =  Reflect.getField("android.os.ServiceManager", "broker", null);
-//		Reflect.setField("android.os.ServiceManager", "broker", null, BrokerSystemManager.mBrokerSystemManager);
-//		
-//		System.out.println("II: " + Reflect.invokeMethod("android.os.ServiceManager", "getIServiceManager", null, null));
-//		
-//		System.out.println("III: " + BrokerSystemManager.mBrokerSystemManager);
-//		Reflect.setField("android.os.ServiceManager", "broker", null, backup);
-//		
-//		System.out.println("Broker: " + Reflect.getField("android.os.ServiceManager", "broker", null));
+        //set Broker in 
+		Object backup =  Reflect.getField("android.os.ServiceManager", "broker", null);
+		Reflect.setField("android.os.ServiceManager", "broker", null, BrokerSystemManager.mBrokerSystemManager);
 		
-
-        Object backup =  Reflect.getField("android.view.accessibility.AccessibilityManager", "broker", null);
-        BrokerAccessibilityManager value = BrokerAccessibilityManager.sInstance;
-        System.out.println("value:"+value);
-		Reflect.setField("android.view.accessibility.AccessibilityManager", "broker", null, value);
+		System.out.println("II: " + Reflect.invokeMethod("android.os.ServiceManager", "getIServiceManager", null, null));
 		
-		System.out.println("II: " + Reflect.invokeMethod("android.view.accessibility.AccessibilityManager", "getInstance", null, context));
+		System.out.println("III: " + BrokerSystemManager.mBrokerSystemManager);
+		//Reflect.setField("android.os.ServiceManager", "broker", null, sServiceManager);
 		
-		System.out.println("III: " + BrokerAccessibilityManager.sInstance);
-//		Reflect.setField("android.view.accessibility", "broker", null, backup);
+		System.out.println("Broker: " + Reflect.getField("android.os.ServiceManager", "broker", null));
 		
-		System.out.println("Broker: " + Reflect.getField("android.view.accessibility.AccessibilityManager", "broker", null));
 		
 		return mBinder;
 	}

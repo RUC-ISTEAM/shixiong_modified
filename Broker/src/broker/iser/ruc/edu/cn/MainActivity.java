@@ -1,11 +1,13 @@
 package broker.iser.ruc.edu.cn;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.ResultInfo;
 import android.content.ComponentName;
 import android.content.Context;
@@ -18,38 +20,45 @@ import android.content.pm.ProviderInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.CompatibilityInfo;
 import android.content.res.Configuration;
+import android.os.Binder;
 import android.os.BrokerBinderProxy;
+import android.os.BrokerSystemManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.IServiceManager;
 import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
+import android.os.Parcelable;
 import android.os.Process;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.accessibility.BrokerAccessibilityManager;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	
     public static final String TARGET = "target.iser.ruc.edu.cn";
     public static Context context = null;
+    public Object sServiceManager=null;
 	private IIsolatedProcessService mService;
+	private IServiceManager nService;
     
-    
+	private void getServiceManager(){
+	    Log.d("!!!","excuseme");
+		sServiceManager = Reflect.invokeMethod("android.os.ServiceManager", "getIServiceManager", null, null); 
+		System.out.println("sServiceManager"+sServiceManager);
+	}
     private ServiceConnection mServiceConnection = new ServiceConnection() {
     	
     	private IBinder getApplicationThread() {
     		IBinder result = null;
-
     		try {
     			result = mService.getApplicationThread();
     		} catch (Exception e) {
     			e.printStackTrace();
-    		}
-    		
+    		}    		
     		return result;
     	}
     	    	
@@ -187,6 +196,7 @@ public class MainActivity extends Activity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Toast.makeText(MainActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
+            
             mService = IIsolatedProcessService.Stub.asInterface(service);
             
         /*    try {
@@ -196,10 +206,6 @@ public class MainActivity extends Activity {
 			}*/
             
             IBinder applicationThread = getApplicationThread();
-
-    		Context context = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, (Context)MainActivity.this);
-    		System.out.println("BrokerII: " + Reflect.invokeMethod("android.view.accessibility.AccessibilityManager", "getInstance", null, context));
-            
             bindApplication(applicationThread);
             getActivityThread();
             scheduleLaunchActivity(applicationThread);
@@ -216,7 +222,16 @@ public class MainActivity extends Activity {
     	Intent intent = new Intent("broker.iser.ruc.edu.cn.IsolatedProcessService");
         bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
 	}
-	
+	public void startSetServiceManager(){
+		// TODO Auto-generated method stub 
+		Log.d("!!!", "enter StartServiceMAnager");
+		try {
+			BrokerSystemManager.mBrokerSystemManager.setSM((IBinder) sServiceManager);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		
@@ -225,11 +240,15 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		System.out.println("state:"+savedInstanceState);
 		setContentView(R.layout.activity_main);
-		MainActivity.context = this;
+		this.context = this;
+		getServiceManager();
+        Log.d("!!!", "getServiceManager???");
+       // BrokerSystemManager.mBrokerSystemManager
+        startSetServiceManager();
 		startIsolatedProcessService();
 		
 	}
-
+    
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
