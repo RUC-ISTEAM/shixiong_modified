@@ -14,6 +14,7 @@ import android.util.Log;
 import  android.os.Process;
 
 
+
 public class IsolatedProcessService extends Service {
 	public static Context context;
 	public static final String TAG = "Broker";

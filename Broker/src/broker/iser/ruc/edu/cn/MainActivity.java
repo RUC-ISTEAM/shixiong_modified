@@ -1,13 +1,11 @@
 package broker.iser.ruc.edu.cn;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.ResultInfo;
 import android.content.ComponentName;
 import android.content.Context;
@@ -20,7 +18,6 @@ import android.content.pm.ProviderInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.CompatibilityInfo;
 import android.content.res.Configuration;
-import android.os.Binder;
 import android.os.BrokerBinderProxy;
 import android.os.BrokerSystemManager;
 import android.os.Bundle;
@@ -28,7 +25,6 @@ import android.os.IBinder;
 import android.os.IServiceManager;
 import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
-import android.os.Parcelable;
 import android.os.Process;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
@@ -41,7 +37,7 @@ public class MainActivity extends Activity {
 	
     public static final String TARGET = "target.iser.ruc.edu.cn";
     public static Context context = null;
-    public Object sServiceManager=null;
+    public static Object sServiceManager;
 	private IIsolatedProcessService mService;
 	private IServiceManager nService;
     
@@ -195,20 +191,19 @@ public class MainActivity extends Activity {
     	
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Toast.makeText(MainActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
-            
+            Toast.makeText(MainActivity.this, "Service connected", Toast.LENGTH_SHORT).show();          
             mService = IIsolatedProcessService.Stub.asInterface(service);
+            IBinder applicationThread = getApplicationThread();
+            bindApplication(applicationThread);
+            getActivityThread();
+            scheduleLaunchActivity(applicationThread);
             
         /*    try {
 				mService.registerCallBack(mBroker);
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}*/
-            
-            IBinder applicationThread = getApplicationThread();
-            bindApplication(applicationThread);
-            getActivityThread();
-            scheduleLaunchActivity(applicationThread);
+           
             
         }
 
@@ -222,15 +217,10 @@ public class MainActivity extends Activity {
     	Intent intent = new Intent("broker.iser.ruc.edu.cn.IsolatedProcessService");
         bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
 	}
-	public void startSetServiceManager(){
-		// TODO Auto-generated method stub 
-		Log.d("!!!", "enter StartServiceMAnager");
-		try {
-			BrokerSystemManager.mBrokerSystemManager.setSM((IBinder) sServiceManager);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void startSetServiceManager() throws RemoteException {
+		Log.d("!!!", "enter StartServiceManager");
+		BrokerSystemManager.setSM (sServiceManager);
+		
 	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -240,11 +230,16 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		System.out.println("state:"+savedInstanceState);
 		setContentView(R.layout.activity_main);
-		this.context = this;
+		MainActivity.context = this;
 		getServiceManager();
-        Log.d("!!!", "getServiceManager???");
-       // BrokerSystemManager.mBrokerSystemManager
-        startSetServiceManager();
+        Log.d("!!!", "getServiceManager!!!");
+        try {
+			startSetServiceManager();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+     
 		startIsolatedProcessService();
 		
 	}
