@@ -7,7 +7,7 @@ interface IIsolatedProcessService {
         void registerCallBack(IBrokerProcess mb);
         void unregisterCallBack(IBrokerProcess mb);
         IBinder getServiceFromBroker(String name);
- //       void setRealServiceManager(IBinder SM);
+        void setRealServiceManager(IBinder SM);
 }
 
 

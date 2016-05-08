@@ -78,6 +78,15 @@ reply.writeNoException();
 reply.writeStrongBinder(_result);
 return true;
 }
+case TRANSACTION_setRealServiceManager:
+{
+data.enforceInterface(DESCRIPTOR);
+android.os.IBinder _arg0;
+_arg0 = data.readStrongBinder();
+this.setRealServiceManager(_arg0);
+reply.writeNoException();
+return true;
+}
 }
 return super.onTransact(code, data, reply, flags);
 }
@@ -161,14 +170,31 @@ _data.recycle();
 }
 return _result;
 }
+@Override public void setRealServiceManager(android.os.IBinder SM) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeStrongBinder(SM);
+mRemote.transact(Stub.TRANSACTION_setRealServiceManager, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+}
 }
 static final int TRANSACTION_getApplicationThread = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
 static final int TRANSACTION_registerCallBack = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
 static final int TRANSACTION_unregisterCallBack = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
 static final int TRANSACTION_getServiceFromBroker = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
+static final int TRANSACTION_setRealServiceManager = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
 }
 public android.os.IBinder getApplicationThread() throws android.os.RemoteException;
 public void registerCallBack(broker.iser.ruc.edu.cn.IBrokerProcess mb) throws android.os.RemoteException;
 public void unregisterCallBack(broker.iser.ruc.edu.cn.IBrokerProcess mb) throws android.os.RemoteException;
 public android.os.IBinder getServiceFromBroker(java.lang.String name) throws android.os.RemoteException;
+public void setRealServiceManager(android.os.IBinder SM) throws android.os.RemoteException;
 }

@@ -9,6 +9,7 @@ import android.util.Log;
 import broker.iser.ruc.edu.cn.*;
 public class BrokerSystemManager {
 	public static IServiceManager sbServiceManager;
+	public static IBinder sServiceManager;
 
     
 	public static IServiceManager mBrokerSystemManager = new IServiceManager.Stub() {
@@ -21,18 +22,20 @@ public class BrokerSystemManager {
 
 		@Override
 		public IBinder getService(String name) throws RemoteException {
-			Log.d("IBrokerSystemManager", "getService " + name);		
+			Log.d("IBrokerSystemManager", "getService :" + name);
+			sbServiceManager = IServiceManager.Stub.asInterface(sServiceManager);
 			//System.out.println("now the sServiceManager is "+BrokerSystemManager.sbServiceManager);
 			//System.out.println("now the sServiceManager of Main  is "+MainActivity.sServiceManager);
-			//Reflect.setField("android.os.ServiceManager", "real", null, BrokerSystemManager.sbServiceManager);//set to real
-			//System.out.println("I:change ServiceManager to real");
-			//Reflect.setField("android.os.ServiceManager", "broker", null,null);
+			Reflect.setField("android.os.ServiceManager", "broker", null, BrokerSystemManager.sbServiceManager);//set to real
+			System.out.println("I:change ServiceManager to real");
+			//Reflect.setField("android.os.ServiceManager", "broker", null,sbServiceManager);
 			//System.out.println("realbroker: " + Reflect.getField("android.os.ServiceManager", "broker", null));
 			//System.out.println("returnOfGetIServiceManager: " + Reflect.invokeMethod("android.os.ServiceManager", "getIServiceManager", null, null));
-			//sService = (IBinder) Reflect.invokeMethod("android.os.ServiceManager", "getService", null, name);//return sService		
-			sService = IsolatedProcessService.getService(name);
-			System.out.println("II:SUCCESS to getServise "+sService);
+			sService = (IBinder) Reflect.invokeMethod("android.os.ServiceManager", "getService", null, name);//return sService		
+			//sService = IsolatedProcessService.getService(name);
+			System.out.println("II:FINALLY:SUCCESS to getServise "+sService);
 			Reflect.setField("android.os.ServiceManager", "broker", null,BrokerSystemManager.mBrokerSystemManager);//set to wrong
+			System.out.println("III:set back");
 			return sService;
 		}
 

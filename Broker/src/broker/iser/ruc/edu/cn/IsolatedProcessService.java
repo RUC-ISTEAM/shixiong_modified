@@ -60,13 +60,13 @@ public class IsolatedProcessService extends Service {
        mCallBacks.finishBroadcast();
        return service;
 	}
-//		@Override
-//		public void setRealServiceManager(IBinder SM) throws RemoteException {
-//			// TODO Auto-generated method stub
-//		    BrokerSystemManager.sbServiceManager= SM;
-//		    Log.d("SM", "ISolatedProcess set the SM of BrokerSystemManager "+SM);
-//			
-//		}
+		@Override
+		public void setRealServiceManager(IBinder SM) throws RemoteException {
+			// TODO Auto-generated method stub
+		    BrokerSystemManager.sServiceManager= SM;
+		    Log.d("SM", "ISolatedProcess get the read SM set to BrokerSystemManager "+SM);
+			
+		}
 
 //		@Override
 //		public void setRealServiceManager(byte[] SM) throws RemoteException {
@@ -114,7 +114,8 @@ public class IsolatedProcessService extends Service {
 		public void unregisterCallBack(IBrokerProcess mb) throws RemoteException {
 			// TODO Auto-generated method stub
 			mCallBacks.unregister(mb);
-		}	
+		}
+	
 	};	
 
 	@Override

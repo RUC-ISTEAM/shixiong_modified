@@ -64,21 +64,7 @@ public class TargetActivity extends Activity{
     		}    		
     		return result;
     	}
-//    	public void startSetServiceManager() throws IOException {	
-//
-//    		String m = null;
-//    		try {
-//    			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//    			ObjectOutputStream oos = new ObjectOutputStream( baos );
-//    			oos.writeObject( sServiceManager );    		     
-//				mService.setRealServiceManager(baos.toByteArray());
-//			} catch (RemoteException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//            //m = BrokerSystemManager.mBrokerSystemManager.setSM(sServiceManager.asBinder());
-//    		Log.d("!!!", "enter StartServiceManager："+ m);		
-//    	}    	
+ 	
     	private IBinder getToken() {
     		Context context = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, TargetActivity.this);
         	IBinder token = (IBinder) Reflect.getField("android.app.ContextImpl", "mActivityToken", context);
@@ -209,27 +195,20 @@ public class TargetActivity extends Activity{
             Toast.makeText(TargetActivity.this, "Service connected", Toast.LENGTH_SHORT).show();          
             mService = IIsolatedProcessService.Stub.asInterface(service);            
             IBinder applicationThread = getApplicationThread();
-//            try {
-//				startSetServiceManager();
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}//translate real sm to target
             try{
             	mService.registerCallBack(mBrokerProcess);
             }catch(RemoteException e){
             	e.printStackTrace();
             }
+            try {
+				mService.setRealServiceManager(sServiceManager.asBinder());
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
             bindApplication(applicationThread);
             getActivityThread();
-            scheduleLaunchActivity(applicationThread);
-            
-        /*    try {
-				mService.registerCallBack(mBroker);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}*/
-                     
+            scheduleLaunchActivity(applicationThread);                     
         }
 
         @Override
@@ -247,6 +226,7 @@ public class TargetActivity extends Activity{
     	Intent intent = new Intent("broker.iser.ruc.edu.cn.IsolatedProcessService");
         bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
 	}
+	
 	private IBrokerProcess mBrokerProcess = new IBrokerProcess.Stub() {
 
 			@Override
@@ -258,16 +238,15 @@ public class TargetActivity extends Activity{
 	};
 	
 	private void getServiceManager(){
-	    Log.d("!!!","excuseme");
 		sServiceManager = (IInterface) Reflect.invokeMethod("android.os.ServiceManager", "getIServiceManager", null, null); 
-		System.out.println("sServiceManager"+sServiceManager);
+		System.out.println("sServiceManager of broker: "+sServiceManager);
 	}
 	private IBinder tryServiceManager(String name) {
 		// TODO Auto-generated method stub
 		System.out.println("I:change ServiceManager to real");
-		Reflect.setField("android.os.ServiceManager", "broker", null,sServiceManager);
+		Reflect.setField("android.os.ServiceManager", "broker", null, null);
 		temp = (IBinder) Reflect.invokeMethod("android.os.ServiceManager", "getService", null, name);
-		Log.d("PXY","!!!YOU GOT IT!"+temp);		
+		Log.d("SM","YOU GOT THE SERVICE"+temp);		
 		return temp;
 		
 	}
@@ -283,7 +262,7 @@ public class TargetActivity extends Activity{
 		tv=(TextView)findViewById(R.id.textView1);
 		tv.append(TARGET);	
 		getServiceManager();
-        Log.d("!!!", "getServiceManager!!!"); 
+        Log.d("SM", "I:getServiceManagerOfBroker"); 
 		startIsolatedProcessService();
 	}
 	@Override
