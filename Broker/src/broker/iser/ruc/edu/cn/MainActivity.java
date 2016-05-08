@@ -37,259 +37,47 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+
 
 public class MainActivity extends Activity {
 	
-    public static final String TARGET = "target.iser.ruc.edu.cn";
-    public static Context context = null;
-    public static IInterface sServiceManager;
-	private IIsolatedProcessService mService;
-	private IBinder temp;//temp service 
-	
+    //public static final String TARGET = "target.iser.ruc.edu.cn";
+	private Button button1;//to start target activity
+	private EditText editText1;//to get target package's name
     
 
-	public void startIsolatedProcessService() {
-    	Intent intent = new Intent("broker.iser.ruc.edu.cn.IsolatedProcessService");
-        bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
-	}
-	
-
-	
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
-    	
-    	private IBinder getApplicationThread() {
-    		IBinder result = null;
-    		try {
-    			result = mService.getApplicationThread();
-    		} catch (Exception e) {
-    			e.printStackTrace();
-    		}    		
-    		return result;
-    	}
-//    	public void startSetServiceManager() throws IOException {	
-//
-//    		String m = null;
-//    		try {
-//    			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//    			ObjectOutputStream oos = new ObjectOutputStream( baos );
-//    			oos.writeObject( sServiceManager );    		     
-//				mService.setRealServiceManager(baos.toByteArray());
-//			} catch (RemoteException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//            //m = BrokerSystemManager.mBrokerSystemManager.setSM(sServiceManager.asBinder());
-//    		Log.d("!!!", "enter StartServiceManager："+ m);		
-//    	}    	
-    	private IBinder getToken() {
-    		Context context = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, MainActivity.this);
-        	IBinder token = (IBinder) Reflect.getField("android.app.ContextImpl", "mActivityToken", context);
-    				
-    		System.out.println("token:"+token);
-    		return token;
-    	}
-    	private Object getActivityThread() {
-    		Object ActivityThread = Reflect.invokeMethod("android.app.ActivityThread", "currentActivityThread", null, null);
-    		System.out.println("ActivityThread:"+ActivityThread);
-    		Object ActivityClientRecord = Reflect.getField("android.app.ActivityThread", "mNewActivities", ActivityThread);
-    		System.out.println("ActivityClientRecord:"+ActivityClientRecord);
-    		ParcelFileDescriptor profileFd = (ParcelFileDescriptor) Reflect.getField("android.app.ActivityThread$ActivityClientRecord", "profileFd", ActivityClientRecord);
-    		System.out.println("profileFd:"+profileFd);
-    		return ActivityThread;
-    	}
-    	
-    	private void scheduleLaunchActivity(IBinder applicationThread) {
-    		IBinder token = (IBinder) BrokerBinderProxy.mBrokerBinderProxy;
-    		
-    		Parcel data = Parcel.obtain();
-    		data.writeInterfaceToken("android.app.IApplicationThread"); //descriptor
-    		Intent intent = new Intent();//intent
-    		intent.setAction("target.iser.Main");
-    		intent.writeToParcel(data, 0);
-    		data.writeStrongBinder(getToken()); //token
-//    		data.writeStrongBinder(token);
-    		System.out.println("token:"+token);
-    		data.writeInt(0); //ident    		
-			try {
-				ComponentName component = new ComponentName("target.iser.ruc.edu.cn", "target.iser.ruc.edu.cn.MainActivity");
-				ActivityInfo info = getPackageManager().getActivityInfo(component, PackageManager.GET_META_DATA);
-				info.writeToParcel(data, 0);
-				System.out.println("target:"+info.getThemeResource());
-			} catch (NameNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} //info
-
-    		Configuration curConfig = new Configuration();  //curConfig
-    		curConfig.writeToParcel(data,0);
-    		CompatibilityInfo compatInfo = CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO;  //compatInfo
-    		compatInfo.writeToParcel(data, 0);
-    		Bundle state = new Bundle();  //state
-//		    Fragment fragment = ;
-    		data.writeBundle(state);    		
-    		
-    		//List<ResultInfo> pendingResults
-    		List<ResultInfo> pendingResults = new ArrayList<ResultInfo>();
-    		data.writeTypedList(pendingResults);
-    		
-    		List<Intent> pendingNewIntents = new ArrayList<Intent>();   //pendingNewIntents 
-    		data.writeTypedList(pendingNewIntents);
-    		data.writeInt(0);  //notResumed
-    		data.writeInt(0);  //isForward
-    		data.writeString("profilename");  //profileName
-    		data.writeInt(0);
-    		
-//    		data.writeInt(1);             
-//    		ParcelFileDescriptor profileFd = new ParcelFileDescriptor(null);    //profileFd
-//    		profileFd.writeToParcel(data, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
-    		
-    		data.writeInt(0);
-    		
-    		Log.d("schedule","launch2");
-    		
-    		try {
-				applicationThread.transact(7, data, null, IBinder.FLAG_ONEWAY);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
-    		data.recycle();
-    	}
-    	
-    	private void bindApplication(IBinder applicationThread) {
-    		 
-    		System.out.println("bind Application 1");
-    		
-			try {
-				Parcel data =Parcel.obtain();
-				data.writeInterfaceToken("android.app.IApplicationThread");
-				data.writeString(TARGET);
-				
-				System.out.println("bind Application 2");
-				
-				ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(TARGET, 0);
-				appInfo.writeToParcel(data,0);
-				List<ProviderInfo> providers = null;
-				data.writeTypedList(providers);//providers  
-				data.writeInt(0);//testname ==NULL
-				
-				System.out.println("bind Application 3");
-				String profileName =null;
-				data.writeString(profileName);
-				data.writeInt(0);//profileFd
-				data.writeInt(0);//autoStopProfiler
-				
-				System.out.println("bind Application 4");
-				Bundle testArgs = new Bundle();
-				data.writeBundle(testArgs);//testArgs
-				data.writeStrongInterface(null);//testWatcher
-				data.writeInt(0);//debugMode;
-				data.writeInt(0);//openGLtrace
-				data.writeInt(0);//restricted backup mode
-				data.writeInt(0);//persistent   		    
-				
-				System.out.println("bind Application 5");
-				Configuration config = new Configuration();
-				config.setToDefaults();   		   
-				config.locale=new Locale("en_US");
-				config.writeToParcel(data, 0); 			
-				data.writeInt(1);//
-				data.writeInt(DisplayMetrics.DENSITY_DEFAULT);
-				data.writeFloat(1.0f);
-				data.writeFloat(1.0f);
-				HashMap<String, IBinder> services = null;
-				data.writeMap(services);//data.writeMap(services);
-			    Bundle coreSettings =new Bundle();
-				data.writeBundle(coreSettings);//data.writeBundle(coreSettings);          
-				
-				System.out.println("bind Application 6");
-           
-				applicationThread.transact(13, data, null, IBinder.FLAG_ONEWAY);
-				data.recycle();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    		
-    	}
-    	
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Toast.makeText(MainActivity.this, "Service connected", Toast.LENGTH_SHORT).show();          
-            mService = IIsolatedProcessService.Stub.asInterface(service);            
-            IBinder applicationThread = getApplicationThread();
-//            try {
-//				startSetServiceManager();
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}//translate real sm to target
-            try{
-            	mService.registerCallBack(mBrokerProcess);
-            }catch(RemoteException e){
-            	e.printStackTrace();
-            }
-            bindApplication(applicationThread);
-            getActivityThread();
-            scheduleLaunchActivity(applicationThread);
-            
-        /*    try {
-				mService.registerCallBack(mBroker);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}*/
-                     
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Toast.makeText(MainActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
-            try{
-            	mService.unregisterCallBack(mBrokerProcess);
-            }catch(RemoteException e){
-            	e.printStackTrace();
-            }
-            mService = null;
-        }
-    };
-    private IBrokerProcess mBrokerProcess = new IBrokerProcess.Stub() {
-
-		@Override
-		public IBinder getService(String name) throws RemoteException {
-			// TODO Auto-generated method stub
-			return tryServiceManager(name);
-		}
-  	  
-    };
+  
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
-		System.out.println("Broker PID: " + Process.myPid());
-		
+		System.out.println("Broker PID: " + Process.myPid());				
 		super.onCreate(savedInstanceState);
 		System.out.println("state:"+savedInstanceState);
 		setContentView(R.layout.activity_main);
-		MainActivity.context = this;
-		getServiceManager();
-        Log.d("!!!", "getServiceManager!!!"); 
-		startIsolatedProcessService();
+		startTargetActivity();
+		
 		
 		
 	}
-	private void getServiceManager(){
-	    Log.d("!!!","excuseme");
-		sServiceManager = (IInterface) Reflect.invokeMethod("android.os.ServiceManager", "getIServiceManager", null, null); 
-		System.out.println("sServiceManager"+sServiceManager);
+	private void startTargetActivity(){
+		button1 = (Button)findViewById(R.id.button1);
+		editText1 =(EditText)findViewById(R.id.editText1);
+	    button1.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				String content = editText1.getText().toString();
+				Intent intent = new Intent(MainActivity.this,TargetActivity.class);
+				intent.putExtra("TargetName", content);
+				startActivity(intent);				
+			}	    	
+	    });
 	}
-	private IBinder tryServiceManager(String name) {
-		// TODO Auto-generated method stub
-		System.out.println("I:change ServiceManager to real");
-		Reflect.setField("android.os.ServiceManager", "broker", null,sServiceManager);
-		temp = (IBinder) Reflect.invokeMethod("android.os.ServiceManager", "getService", null, name);
-		Log.d("PXY","!!!YOU GOT IT!"+temp);		
-		return temp;
-		
-	}
+	
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
