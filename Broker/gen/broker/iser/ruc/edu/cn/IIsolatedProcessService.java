@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: D:\\box\\Broker\\src\\broker\\iser\\ruc\\edu\\cn\\IIsolatedProcessService.aidl
+ * Original file: /Users/Kainny/学习/安卓/shixiong_modified/Broker/src/broker/iser/ruc/edu/cn/IIsolatedProcessService.aidl
  */
 package broker.iser.ruc.edu.cn;
 public interface IIsolatedProcessService extends android.os.IInterface
@@ -50,6 +50,34 @@ reply.writeNoException();
 reply.writeStrongBinder(_result);
 return true;
 }
+case TRANSACTION_registerCallBack:
+{
+data.enforceInterface(DESCRIPTOR);
+broker.iser.ruc.edu.cn.IBrokerProcess _arg0;
+_arg0 = broker.iser.ruc.edu.cn.IBrokerProcess.Stub.asInterface(data.readStrongBinder());
+this.registerCallBack(_arg0);
+reply.writeNoException();
+return true;
+}
+case TRANSACTION_unregisterCallBack:
+{
+data.enforceInterface(DESCRIPTOR);
+broker.iser.ruc.edu.cn.IBrokerProcess _arg0;
+_arg0 = broker.iser.ruc.edu.cn.IBrokerProcess.Stub.asInterface(data.readStrongBinder());
+this.unregisterCallBack(_arg0);
+reply.writeNoException();
+return true;
+}
+case TRANSACTION_getServiceFromBroker:
+{
+data.enforceInterface(DESCRIPTOR);
+java.lang.String _arg0;
+_arg0 = data.readString();
+android.os.IBinder _result = this.getServiceFromBroker(_arg0);
+reply.writeNoException();
+reply.writeStrongBinder(_result);
+return true;
+}
 }
 return super.onTransact(code, data, reply, flags);
 }
@@ -85,8 +113,62 @@ _data.recycle();
 }
 return _result;
 }
+@Override public void registerCallBack(broker.iser.ruc.edu.cn.IBrokerProcess mb) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeStrongBinder((((mb!=null))?(mb.asBinder()):(null)));
+mRemote.transact(Stub.TRANSACTION_registerCallBack, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+}
+@Override public void unregisterCallBack(broker.iser.ruc.edu.cn.IBrokerProcess mb) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeStrongBinder((((mb!=null))?(mb.asBinder()):(null)));
+mRemote.transact(Stub.TRANSACTION_unregisterCallBack, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+}
+@Override public android.os.IBinder getServiceFromBroker(java.lang.String name) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+android.os.IBinder _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeString(name);
+mRemote.transact(Stub.TRANSACTION_getServiceFromBroker, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readStrongBinder();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
+}
 }
 static final int TRANSACTION_getApplicationThread = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
+static final int TRANSACTION_registerCallBack = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
+static final int TRANSACTION_unregisterCallBack = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
+static final int TRANSACTION_getServiceFromBroker = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
 }
 public android.os.IBinder getApplicationThread() throws android.os.RemoteException;
+public void registerCallBack(broker.iser.ruc.edu.cn.IBrokerProcess mb) throws android.os.RemoteException;
+public void unregisterCallBack(broker.iser.ruc.edu.cn.IBrokerProcess mb) throws android.os.RemoteException;
+public android.os.IBinder getServiceFromBroker(java.lang.String name) throws android.os.RemoteException;
 }

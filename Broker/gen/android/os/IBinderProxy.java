@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: D:\\box\\Broker\\src\\android\\os\\IBinderProxy.aidl
+ * Original file: /Users/Kainny/学习/安卓/shixiong_modified/Broker/src/android/os/IBinderProxy.aidl
  */
 package android.os;
 public interface IBinderProxy extends android.os.IInterface

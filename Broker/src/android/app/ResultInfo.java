@@ -1,5 +1,6 @@
 package android.app;
 
+import android.R.integer;
 import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -62,7 +63,6 @@ public class ResultInfo implements Parcelable{
 		}
 	};
 	
-	@Override
 	public String toString() {
 		return "ResultInfo{who=" + mResultWho + ", request=" + mRequestCode +", result=" + mResultCode + ", data=" + mData +"}";
 	}

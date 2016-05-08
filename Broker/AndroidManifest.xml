@@ -22,8 +22,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-        
+        <activity 
+            android:name=".TargetActivity"
+            android:label="TARGET">                   
+        </activity>       
         <service 
             android:enabled="true" 
             android:name="broker.iser.ruc.edu.cn.IsolatedProcessService" 
