@@ -9,6 +9,7 @@ import android.app.IApplicationThread;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +58,7 @@ public class TargetActivity extends Activity{
     public static IInterface sServiceManager;
 	private IIsolatedProcessService mService;
 	private IBinder temp;//temp service 
-	private static Object AppThreadBroker;
+	private static android.app.IApplicationThread AppThreadBroker;
 	private static Context context2 =null;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -292,7 +293,7 @@ public class TargetActivity extends Activity{
 	Object activityThread = Reflect.getField("android.app.ContextImpl", "mMainThread", context2);
 	Object applicationThread = Reflect.invokeMethod("android.app.ActivityThread", "getApplicationThread", activityThread, null); 
     Log.d("CALLER", "called getApplicationThread() xx" +applicationThread);
-    AppThreadBroker = applicationThread;
+    AppThreadBroker = (IApplicationThread)applicationThread;
 	}
 	public IBrokerProcess mBrokerProcess = new IBrokerProcess.Stub() {
 
@@ -336,6 +337,21 @@ public class TargetActivity extends Activity{
 				// TODO Auto-generated method stub
 				ContentProviderHolder BrokerHolder;
 				IActivityManager BrokerProxy=(IActivityManager)Reflect.invokeMethod("android.app.ActivityManagerNative","getDefault",context);
+				System.out.println("TRANSVER START!!");
+				Class<?> clazz;
+				try {
+					clazz = Class.forName("android.app.ActivityManagerProxy");
+					System.out.println("--Class: " + clazz);
+					Method[] methods = clazz.getDeclaredMethods();
+					for(int i =1;i<=methods.length;i++){
+						System.out.println("--Method--"+i+": "+methods[i-1]);
+					}
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		
+				
 				BrokerHolder=(ContentProviderHolder) Reflect.invokeMethod("android.app.ActivityManagerProxy", "getContentProvider", BrokerProxy,AppThreadBroker,name,stable );
 				//BrokerHolder = getContentProvider(AppThread, name, stable);
 				Log.d("BYE", "BRoker get holder--"+BrokerHolder);
