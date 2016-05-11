@@ -1,6 +1,11 @@
 package broker.iser.ruc.edu.cn;
 
 import android.app.Activity;
+import android.app.BrokerActivityManagerProxy;
+import android.app.ContentProviderHolder;
+import android.app.IActivityManager;
+import android.app.IApplicationThread;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -52,6 +57,8 @@ public class TargetActivity extends Activity{
     public static IInterface sServiceManager;
 	private IIsolatedProcessService mService;
 	private IBinder temp;//temp service 
+	private static Object AppThreadBroker;
+	private static Context context2 =null;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
     	
@@ -64,21 +71,7 @@ public class TargetActivity extends Activity{
     		}    		
     		return result;
     	}
-//    	public void startSetServiceManager() throws IOException {	
-//
-//    		String m = null;
-//    		try {
-//    			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//    			ObjectOutputStream oos = new ObjectOutputStream( baos );
-//    			oos.writeObject( sServiceManager );    		     
-//				mService.setRealServiceManager(baos.toByteArray());
-//			} catch (RemoteException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//            //m = BrokerSystemManager.mBrokerSystemManager.setSM(sServiceManager.asBinder());
-//    		Log.d("!!!", "enter StartServiceManager："+ m);		
-//    	}    	
+    	
     	private IBinder getToken() {
     		Context context = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, TargetActivity.this);
         	IBinder token = (IBinder) Reflect.getField("android.app.ContextImpl", "mActivityToken", context);
@@ -110,7 +103,7 @@ public class TargetActivity extends Activity{
     		data.writeInt(0); //ident    		
 			try {
 				ComponentName component = new ComponentName("target.iser.ruc.edu.cn", "target.iser.ruc.edu.cn.MainActivity");
-				ActivityInfo info = getPackageManager().getActivityInfo(component, PackageManager.GET_META_DATA);
+				ActivityInfo info = context.getPackageManager().getActivityInfo(component, PackageManager.GET_META_DATA);
 				info.writeToParcel(data, 0);
 				System.out.println("target:"+info.getThemeResource());
 			} catch (NameNotFoundException e1) {
@@ -209,27 +202,68 @@ public class TargetActivity extends Activity{
             Toast.makeText(TargetActivity.this, "Service connected", Toast.LENGTH_SHORT).show();          
             mService = IIsolatedProcessService.Stub.asInterface(service);            
             IBinder applicationThread = getApplicationThread();
-//            try {
-//				startSetServiceManager();
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}//translate real sm to target
             try{
             	mService.registerCallBack(mBrokerProcess);
             }catch(RemoteException e){
             	e.printStackTrace();
             }
-            bindApplication(applicationThread);
-            getActivityThread();
-            scheduleLaunchActivity(applicationThread);
-            
-        /*    try {
-				mService.registerCallBack(mBroker);
+            try {
+				mService.setRealServiceManager(sServiceManager.asBinder());
 			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}*/
-                     
+			}
+            Log.d("order", "onConnected:before bindApplication ");
+            bindApplication(applicationThread);
+            Log.d("order", "onConnected:after bindApplication ");
+            getActivityThread();
+            Log.d("order", "onConnected:before launchApplication ");
+            scheduleLaunchActivity(applicationThread); 
+            Log.d("order", "onConnected:after launchApplication ");
+            try {
+            	Log.d("NEWS FORM TARGET", "TargetActivity want to help set the package manager of target!");
+				mService.trySetPackageManager();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            
+            try {
+            	Log.d("NEWS FORM TARGET", "TargetActivity want to help set the sCache!");
+				mService.trySetServiceCache();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            IBinder b = null;
+            try {
+				 b=BrokerSystemManager.mBrokerSystemManager.getService("activity");
+				 Log.d("NEWS FORM TARGET", "TargetActivity get the AMBinder--"+b);
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}           
+            try {
+            	Log.d("NEWS FORM TARGET", "TargetActivity want to set AMBinder");
+				mService.transAMBinder(b);;
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            try {
+            	Log.d("NEWS FORM TARGET", "TargetActivity want to help change AM");
+				mService.tryChangeAm();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            
+//            try {
+//				mService.tryClearViolations();
+//			} catch (RemoteException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
         }
 
         @Override
@@ -247,27 +281,80 @@ public class TargetActivity extends Activity{
     	Intent intent = new Intent("broker.iser.ruc.edu.cn.IsolatedProcessService");
         bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
 	}
-	private IBrokerProcess mBrokerProcess = new IBrokerProcess.Stub() {
+
+	private IBinder getmRemote() {
+		IActivityManager BrokerProxy=(IActivityManager)Reflect.invokeMethod("android.app.ActivityManagerNative","getDefault",context);
+		IBinder mRemote = (IBinder) Reflect.getField("android.app.ActivityManagerProxy", "mRemote", BrokerProxy);
+		return mRemote;
+	}
+	private static void getCaller(){
+   
+	Object activityThread = Reflect.getField("android.app.ContextImpl", "mMainThread", context2);
+	Object applicationThread = Reflect.invokeMethod("android.app.ActivityThread", "getApplicationThread", activityThread, null); 
+    Log.d("CALLER", "called getApplicationThread() xx" +applicationThread);
+    AppThreadBroker = applicationThread;
+	}
+	public IBrokerProcess mBrokerProcess = new IBrokerProcess.Stub() {
 
 			@Override
 			public IBinder getService(String name) throws RemoteException {
 				// TODO Auto-generated method stub
 				return tryServiceManager(name);
 			}
+//			private ContentProviderHolder getContentProvider(IBinder caller, String name, boolean stable) {
+//	    		Parcel data = Parcel.obtain();
+//	    		Parcel reply = Parcel.obtain();
+//            caller=AppThreadBroker;
+//	        data.writeInterfaceToken(IActivityManager.descriptor);
+//	        data.writeStrongBinder(caller != null ? caller: null);
+//	        data.writeString(name);
+//	        data.writeInt(stable ? 1 : 0);
+//	        IBinder ib = getmRemote();
+//	        System.out.println("mRemote:"+ib);
+//	        try {
+//				ib.transact(29, data, reply, 0);
+//			} catch (RemoteException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//	        reply.readException();
+//	        int res = reply.readInt();
+//	        
+//	        Log.d("GOODBYE","READ REPLY1 --"+res );
+//	        ContentProviderHolder cph = null;
+//	        if (res != 0) {
+//	            cph = ContentProviderHolder.CREATOR.createFromParcel(reply);
+//	        }
+//	        data.recycle();
+//	        reply.recycle();
+//	        Log.d("GOODBYE","READ REPLY2 --"+ cph==null?null:cph.toString() );
+//	        return cph;
+//	    	}
+			
+			@Override
+			public ContentProviderHolder getHolder(IBinder AppThread,String name, boolean stable) throws RemoteException {
+				// TODO Auto-generated method stub
+				ContentProviderHolder BrokerHolder;
+				IActivityManager BrokerProxy=(IActivityManager)Reflect.invokeMethod("android.app.ActivityManagerNative","getDefault",context);
+				BrokerHolder=(ContentProviderHolder) Reflect.invokeMethod("android.app.ActivityManagerProxy", "getContentProvider", BrokerProxy,AppThreadBroker,name,stable );
+				//BrokerHolder = getContentProvider(AppThread, name, stable);
+				Log.d("BYE", "BRoker get holder--"+BrokerHolder);
+				return BrokerHolder;
+			}
+			
 	  	  
 	};
 	
 	private void getServiceManager(){
-	    Log.d("!!!","excuseme");
 		sServiceManager = (IInterface) Reflect.invokeMethod("android.os.ServiceManager", "getIServiceManager", null, null); 
-		System.out.println("sServiceManager"+sServiceManager);
+		System.out.println("sServiceManager of broker: "+sServiceManager);
 	}
 	private IBinder tryServiceManager(String name) {
 		// TODO Auto-generated method stub
 		System.out.println("I:change ServiceManager to real");
-		Reflect.setField("android.os.ServiceManager", "broker", null,sServiceManager);
+		Reflect.setField("android.os.ServiceManager", "broker", null, null);
 		temp = (IBinder) Reflect.invokeMethod("android.os.ServiceManager", "getService", null, name);
-		Log.d("PXY","!!!YOU GOT IT!"+temp);		
+		Log.d("SM","YOU GOT THE SERVICE"+temp);		
 		return temp;
 		
 	}
@@ -278,12 +365,14 @@ public class TargetActivity extends Activity{
 		System.out.println("TargetActivity PID: " + Process.myPid());		
 		setContentView(R.layout.targer_activity);
 		TargetActivity.context = this;
+		context2= (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, (Context)this);
+		getCaller();
 		Intent intent = getIntent();
 		TARGET=intent.getStringExtra("TargetName");
 		tv=(TextView)findViewById(R.id.textView1);
 		tv.append(TARGET);	
 		getServiceManager();
-        Log.d("!!!", "getServiceManager!!!"); 
+        Log.d("SM", "I:getServiceManagerOfBroker"); 
 		startIsolatedProcessService();
 	}
 	@Override
