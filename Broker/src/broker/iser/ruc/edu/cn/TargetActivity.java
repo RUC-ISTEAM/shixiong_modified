@@ -9,6 +9,7 @@ import android.app.IApplicationThread;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -335,7 +336,7 @@ public class TargetActivity extends Activity{
 			@Override
 			public ContentProviderHolder getHolder(IBinder AppThread,String name, boolean stable) throws RemoteException {
 				// TODO Auto-generated method stub
-				ContentProviderHolder BrokerHolder;
+				ContentProviderHolder BrokerHolder = null;
 				IActivityManager BrokerProxy=(IActivityManager)Reflect.invokeMethod("android.app.ActivityManagerNative","getDefault",context);
 				System.out.println("TRANSVER START!!");
 				Class<?> clazz;
@@ -343,16 +344,29 @@ public class TargetActivity extends Activity{
 					clazz = Class.forName("android.app.ActivityManagerProxy");
 					System.out.println("--Class: " + clazz);
 					Method[] methods = clazz.getDeclaredMethods();
+					
 					for(int i =1;i<=methods.length;i++){
 						System.out.println("--Method--"+i+": "+methods[i-1]);
+					}
+					try {
+						BrokerHolder=(ContentProviderHolder) methods[32].invoke(BrokerProxy, AppThreadBroker,name,stable);
+					} catch (IllegalArgumentException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-		
+		      
 				
-				BrokerHolder=(ContentProviderHolder) Reflect.invokeMethod("android.app.ActivityManagerProxy", "getContentProvider", BrokerProxy,AppThreadBroker,name,stable );
+				//BrokerHolder=(ContentProviderHolder) Reflect.invokeMethod("android.app.ActivityManagerProxy", "getContentProvider", BrokerProxy,AppThreadBroker,name,stable );
 				//BrokerHolder = getContentProvider(AppThread, name, stable);
 				Log.d("BYE", "BRoker get holder--"+BrokerHolder);
 				return BrokerHolder;
