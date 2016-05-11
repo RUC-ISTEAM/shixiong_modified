@@ -8,9 +8,9 @@ import java.io.StreamCorruptedException;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.PermissionInfo;
-
 import broker.iser.ruc.edu.cn.IBrokerProcess;
 import android.app.BrokerActivityManagerProxy;
 import android.app.ContentProviderHolder;
@@ -62,6 +62,18 @@ public class IsolatedProcessService extends Service {
 			return null;
 		}
     }
+    
+    public static int startActivity(IBinder resultTo, String action) {
+		try {
+			Log.d("BYE", "startActivity in iso");
+			return mBinder.startActivityFromBroker(resultTo, action);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
+	}
+    
 	private final static  IIsolatedProcessService.Stub mBinder = new IIsolatedProcessService.Stub() {
 		
 		@Override
@@ -223,6 +235,24 @@ public class IsolatedProcessService extends Service {
 	       mCallBacks.finishBroadcast();
 		   Log.d("BYE", "in isolatedprocess stub");
 	       return h;
+		}
+
+		@Override
+		public int startActivityFromBroker(IBinder resultTo, String action)
+				throws RemoteException {
+
+	        final int len = mCallBacks.beginBroadcast();
+	        int result=0;
+	        for (int i = 0; i < len; i++) {
+	            try {
+	                      result= mCallBacks.getBroadcastItem(i).startActivity(resultTo, action);
+	                } catch (RemoteException e) {
+	                         e.printStackTrace();
+	                }
+	       }
+	       mCallBacks.finishBroadcast();
+		   Log.d("BYE", "startActivityFromBroker");
+	       return result;
 		}
 	};	
 //	@SuppressWarnings("unchecked")

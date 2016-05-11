@@ -1,5 +1,6 @@
 package broker.iser.ruc.edu.cn;
 
+import android.R.integer;
 import android.app.Activity;
 import android.app.BrokerActivityManagerProxy;
 import android.app.ContentProviderHolder;
@@ -14,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+
 
 
 import android.app.Activity;
@@ -357,8 +360,45 @@ public class TargetActivity extends Activity{
 				Log.d("BYE", "BRoker get holder--"+BrokerHolder);
 				return BrokerHolder;
 			}
+
+			@Override
+			public int startActivity(IBinder resultTo, String action)
+					throws RemoteException {
+				// TODO Auto-generated method stub
+		        Parcel data = Parcel.obtain();
+		        Parcel reply = Parcel.obtain();
+		        data.writeInterfaceToken(IActivityManager.descriptor);
+				IActivityManager BrokerProxy=(IActivityManager)Reflect.invokeMethod("android.app.ActivityManagerNative","getDefault",context);
+				
+		        data.writeStrongBinder(BrokerProxy != null ? BrokerProxy.asBinder() : null);
+		        Intent intent2 = new Intent();
+		        intent2.setAction(action);
+		        intent2.writeToParcel(data, 0);
+		        data.writeString(null);
+		        data.writeStrongBinder(resultTo);
+		        data.writeString(null);
+		        data.writeInt(1);
+		        data.writeInt(0);
+		        data.writeString(null);
+		        data.writeInt(0);
+		        data.writeInt(0);
+
+		        IBinder ib = getmRemote();
+		        System.out.println("mRemote:"+ib);
+		        try {
+					ib.transact(3, data, reply, 0);
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+//		        mRemote.transact(START_ACTIVITY_TRANSACTION, data, reply, 0);
+		        reply.readException();
+		        int result = reply.readInt();
+		        reply.recycle();
+		        data.recycle();
+		        return result;
+			}
 			
-	  	  
+//			public int startActivity()		
 	};
 	
 	private void getServiceManager(){

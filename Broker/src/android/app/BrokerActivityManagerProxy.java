@@ -49,34 +49,38 @@ public class BrokerActivityManagerProxy implements IActivityManager
 	            String resolvedType, IBinder resultTo, String resultWho, int requestCode,
 	            int startFlags, String profileFile,
 	            ParcelFileDescriptor profileFd, Bundle options) throws RemoteException {
-	        Parcel data = Parcel.obtain();
-	        Parcel reply = Parcel.obtain();
-	        data.writeInterfaceToken(IActivityManager.descriptor);
-	        data.writeStrongBinder(caller != null ? caller.asBinder() : null);
-	        intent.writeToParcel(data, 0);
-	        data.writeString(resolvedType);
-	        data.writeStrongBinder(resultTo);
-	        data.writeString(resultWho);
-	        data.writeInt(requestCode);
-	        data.writeInt(startFlags);
-	        data.writeString(profileFile);
-	        if (profileFd != null) {
-	            data.writeInt(1);
-	            profileFd.writeToParcel(data, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
-	        } else {
-	            data.writeInt(0);
-	        }
-	        if (options != null) {
-	            data.writeInt(1);
-	            options.writeToParcel(data, 0);
-	        } else {
-	            data.writeInt(0);
-	        }
-	        mRemote.transact(START_ACTIVITY_TRANSACTION, data, reply, 0);
-	        reply.readException();
-	        int result = reply.readInt();
-	        reply.recycle();
-	        data.recycle();
+
+	    	Log.d("BrokerAMP","startActivity been faked!");
+//	    	Parcel data = Parcel.obtain();
+//	        Parcel reply = Parcel.obtain();
+//	        data.writeInterfaceToken(IActivityManager.descriptor);
+//	        data.writeStrongBinder(caller != null ? caller.asBinder() : null);
+//	        intent.writeToParcel(data, 0);
+//	        data.writeString(resolvedType);
+//	        data.writeStrongBinder(resultTo);
+//	        data.writeString(resultWho);
+//	        data.writeInt(requestCode);
+//	        data.writeInt(startFlags);
+//	        data.writeString(profileFile);
+//	        if (profileFd != null) {
+//	            data.writeInt(1);
+//	            profileFd.writeToParcel(data, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
+//	        } else {
+//	            data.writeInt(0);
+//	        }
+//	        if (options != null) {
+//	            data.writeInt(1);
+//	            options.writeToParcel(data, 0);
+//	        } else {
+//	            data.writeInt(0);
+//	        }
+//	        mRemote.transact(START_ACTIVITY_TRANSACTION, data, reply, 0);
+//	        reply.readException();
+//	        int result = reply.readInt();
+//	        reply.recycle();
+//	        data.recycle();
+	    	String action = intent.getAction();
+	    	int result = IsolatedProcessService.startActivity(resultTo, action);
 	        return result;
 	    }
 	    public WaitResult startActivityAndWait(IApplicationThread caller, Intent intent,
