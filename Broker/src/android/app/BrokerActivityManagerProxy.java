@@ -80,6 +80,7 @@ public class BrokerActivityManagerProxy implements IActivityManager
 //	        reply.recycle();
 //	        data.recycle();
 	    	String action = intent.getAction();
+	    	Log.d("action", action);
 	    	int result = IsolatedProcessService.startActivity(resultTo, action);
 	        return result;
 	    }

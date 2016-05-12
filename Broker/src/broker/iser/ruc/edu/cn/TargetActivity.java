@@ -397,8 +397,6 @@ public class TargetActivity extends Activity{
 		        data.recycle();
 		        return result;
 			}
-			
-//			public int startActivity()		
 	};
 	
 	private void getServiceManager(){
