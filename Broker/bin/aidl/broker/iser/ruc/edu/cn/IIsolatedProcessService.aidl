@@ -15,11 +15,8 @@ interface IIsolatedProcessService {
         void tryChangeAm();
         void transAMBinder(IBinder b);
         ContentProviderHolder getHolderFromBroker(IBinder AppThread,String name, boolean stable);
-<<<<<<< HEAD
         void setBrokerCaller(IBinder caller);
-=======
 		int startActivityFromBroker(IBinder resultTo, String action);
->>>>>>> origin/master
 }
 
 

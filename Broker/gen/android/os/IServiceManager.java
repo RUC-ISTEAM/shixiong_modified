@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: D:\\secure_competition\\box1\\Broker\\src\\android\\os\\IServiceManager.aidl
+ * Original file: /Users/Kainny/学习/安卓/shixiong_modified/Broker/src/android/os/IServiceManager.aidl
  */
 package android.os;
 public interface IServiceManager extends android.os.IInterface

@@ -385,7 +385,7 @@ public class TargetActivity extends Activity{
 				return BrokerHolder;
 			}
 
-<<<<<<< HEAD
+
 //			@Override
 //			public IBinder BrokerAppThread() throws RemoteException {
 //				// TODO Auto-generated method stub

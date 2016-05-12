@@ -239,14 +239,13 @@ public class IsolatedProcessService extends Service {
 		}
 
 		@Override
-<<<<<<< HEAD
 		public void setBrokerCaller(IBinder caller) throws RemoteException {
 			// TODO Auto-generated method stub
 			BrokerAppThread=caller;
 		}
 
 
-=======
+
 		public int startActivityFromBroker(IBinder resultTo, String action)
 				throws RemoteException {
 
@@ -263,7 +262,7 @@ public class IsolatedProcessService extends Service {
 		   Log.d("BYE", "startActivityFromBroker");
 	       return result;
 		}
->>>>>>> origin/master
+
 	};	
 //	@SuppressWarnings("unchecked")
 //	public static void trySetServiceCache() throws RemoteException {

@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: D:\\secure_competition\\box1\\Broker\\src\\android\\view\\accessibility\\IAccessibilityManagerClient.aidl
+ * Original file: /Users/Kainny/学习/安卓/shixiong_modified/Broker/src/android/view/accessibility/IAccessibilityManagerClient.aidl
  */
 package android.view.accessibility;
 public interface IAccessibilityManagerClient extends android.os.IInterface
