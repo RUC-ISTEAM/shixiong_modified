@@ -395,15 +395,15 @@ public class TargetActivity extends Activity{
 	  	  
 
 			@Override
-			public int startActivity(IBinder resultTo, String action)
+			public int startActivity(IBinder caller,IBinder resultTo, String action)
 					throws RemoteException {
 				// TODO Auto-generated method stub
+			    Log.d("startActivity", "in Target!");
 		        Parcel data = Parcel.obtain();
 		        Parcel reply = Parcel.obtain();
 		        data.writeInterfaceToken(IActivityManager.descriptor);
-				IActivityManager BrokerProxy=(IActivityManager)Reflect.invokeMethod("android.app.ActivityManagerNative","getDefault",context);
-				
-		        data.writeStrongBinder(BrokerProxy != null ? BrokerProxy.asBinder() : null);
+				//IActivityManager BrokerProxy=(IActivityManager)Reflect.invokeMethod("android.app.ActivityManagerNative","getDefault",context);				
+		        data.writeStrongBinder(caller!= null ? caller : null);
 		        Intent intent2 = new Intent();
 		        intent2.setAction(action);
 		        intent2.writeToParcel(data, 0);

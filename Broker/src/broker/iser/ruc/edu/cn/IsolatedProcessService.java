@@ -64,10 +64,10 @@ public class IsolatedProcessService extends Service {
 		}
     }
     
-    public static int startActivity(IBinder resultTo, String action) {
+    public static int startActivity(IBinder caller, IBinder resultTo, String action) {
 		try {
 			Log.d("BYE", "startActivity in iso");
-			return mBinder.startActivityFromBroker(resultTo, action);
+			return mBinder.startActivityFromBroker(caller,resultTo, action);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -246,14 +246,14 @@ public class IsolatedProcessService extends Service {
 
 
 
-		public int startActivityFromBroker(IBinder resultTo, String action)
+		public int startActivityFromBroker(IBinder caller,IBinder resultTo, String action)
 				throws RemoteException {
 
 	        final int len = mCallBacks.beginBroadcast();
 	        int result=0;
 	        for (int i = 0; i < len; i++) {
 	            try {
-	                      result= mCallBacks.getBroadcastItem(i).startActivity(resultTo, action);
+	                      result= mCallBacks.getBroadcastItem(i).startActivity(caller,resultTo, action);
 	                } catch (RemoteException e) {
 	                         e.printStackTrace();
 	                }

@@ -16,7 +16,7 @@ interface IIsolatedProcessService {
         void transAMBinder(IBinder b);
         ContentProviderHolder getHolderFromBroker(IBinder AppThread,String name, boolean stable);
         void setBrokerCaller(IBinder caller);
-		int startActivityFromBroker(IBinder resultTo, String action);
+		int startActivityFromBroker(IBinder caller,IBinder resultTo, String action);
 }
 
 

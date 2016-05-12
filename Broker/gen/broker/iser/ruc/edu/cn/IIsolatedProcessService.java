@@ -151,9 +151,11 @@ case TRANSACTION_startActivityFromBroker:
 data.enforceInterface(DESCRIPTOR);
 android.os.IBinder _arg0;
 _arg0 = data.readStrongBinder();
-java.lang.String _arg1;
-_arg1 = data.readString();
-int _result = this.startActivityFromBroker(_arg0, _arg1);
+android.os.IBinder _arg1;
+_arg1 = data.readStrongBinder();
+java.lang.String _arg2;
+_arg2 = data.readString();
+int _result = this.startActivityFromBroker(_arg0, _arg1, _arg2);
 reply.writeNoException();
 reply.writeInt(_result);
 return true;
@@ -355,13 +357,14 @@ _reply.recycle();
 _data.recycle();
 }
 }
-@Override public int startActivityFromBroker(android.os.IBinder resultTo, java.lang.String action) throws android.os.RemoteException
+@Override public int startActivityFromBroker(android.os.IBinder caller, android.os.IBinder resultTo, java.lang.String action) throws android.os.RemoteException
 {
 android.os.Parcel _data = android.os.Parcel.obtain();
 android.os.Parcel _reply = android.os.Parcel.obtain();
 int _result;
 try {
 _data.writeInterfaceToken(DESCRIPTOR);
+_data.writeStrongBinder(caller);
 _data.writeStrongBinder(resultTo);
 _data.writeString(action);
 mRemote.transact(Stub.TRANSACTION_startActivityFromBroker, _data, _reply, 0);
@@ -401,5 +404,5 @@ public void tryChangeAm() throws android.os.RemoteException;
 public void transAMBinder(android.os.IBinder b) throws android.os.RemoteException;
 public android.app.ContentProviderHolder getHolderFromBroker(android.os.IBinder AppThread, java.lang.String name, boolean stable) throws android.os.RemoteException;
 public void setBrokerCaller(android.os.IBinder caller) throws android.os.RemoteException;
-public int startActivityFromBroker(android.os.IBinder resultTo, java.lang.String action) throws android.os.RemoteException;
+public int startActivityFromBroker(android.os.IBinder caller, android.os.IBinder resultTo, java.lang.String action) throws android.os.RemoteException;
 }
