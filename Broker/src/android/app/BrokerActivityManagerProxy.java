@@ -51,25 +51,41 @@ public class BrokerActivityManagerProxy implements IActivityManager
 	            ParcelFileDescriptor profileFd, Bundle options) throws RemoteException {
 	        Parcel data = Parcel.obtain();
 	        Parcel reply = Parcel.obtain();
+	        
 	        data.writeInterfaceToken(IActivityManager.descriptor);
+	        Log.d("GOODNIGHT", "IActivityManager.descriptor--"+IActivityManager.descriptor);
 	        data.writeStrongBinder(caller != null ? caller.asBinder() : null);
+	        Log.d("GOODNIGHT", "caller--"+(caller != null ? caller.asBinder() : null));
 	        intent.writeToParcel(data, 0);
+	        Log.d("GOODNIGHT", "intent--"+intent);
 	        data.writeString(resolvedType);
+	        Log.d("GOODNIGHT", "resolveType--"+resolvedType);
 	        data.writeStrongBinder(resultTo);
+	        Log.d("GOODNIGHT", "resultTo--"+resultTo);
 	        data.writeString(resultWho);
+	        Log.d("GOODNIGHT", "resultWho--"+resultWho);
 	        data.writeInt(requestCode);
+	        Log.d("GOODNIGHT", "requestCode--"+requestCode);
 	        data.writeInt(startFlags);
+	        Log.d("GOODNIGHT", "startFlags--"+startFlags);
 	        data.writeString(profileFile);
+	        Log.d("GOODNIGHT", "profileFile--"+profileFile);
 	        if (profileFd != null) {
 	            data.writeInt(1);
+	            Log.d("GOODNIGHT", "profileFd--"+"writeInt:1");
+	            Log.d("GOODNIGHT", "profileFd--"+profileFd+"  --.writeToParcel(data, Parcelable.PARCELABLE_WRITE_RETURN_VALUE)");
 	            profileFd.writeToParcel(data, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
 	        } else {
-	            data.writeInt(0);
+	        	Log.d("GOODNIGHT", "profileFd--"+"writeInt:0");
+	        	data.writeInt(0);
 	        }
 	        if (options != null) {
+	        	Log.d("GOODNIGHT", "options--"+"writeInt:1");
 	            data.writeInt(1);
+	            Log.d("GOODNIGHT", "options--"+options+"writeToParcel(data,0)");
 	            options.writeToParcel(data, 0);
 	        } else {
+	        	Log.d("GOODNIGHT", "options--"+"writeInt:0");
 	            data.writeInt(0);
 	        }
 	        mRemote.transact(START_ACTIVITY_TRANSACTION, data, reply, 0);
@@ -678,8 +694,9 @@ public class BrokerActivityManagerProxy implements IActivityManager
 //	        data.recycle();
 //	        reply.recycle();
 	    	ContentProviderHolder cph=null;
-	    	if(caller!=null)  cph=(ContentProviderHolder)IsolatedProcessService.getHolder(caller.asBinder(), name, stable);
-	        return cph;
+	    	if(caller!=null)  cph=android.app.ContentProviderHolder.asRealContentProvider(IsolatedProcessService.getHolder(caller.asBinder(), name, stable));
+	        Log.d("BYE", "goodBye contentProvider I gusse :..."+cph);
+	    	return cph;
 	    }
 	    public ContentProviderHolder getContentProviderExternal(String name, IBinder token)
 	            throws RemoteException

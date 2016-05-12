@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: /Users/Kainny/学习/安卓/shixiong_modified/Broker/src/broker/iser/ruc/edu/cn/IIsolatedProcessService.aidl
+ * Original file: D:\\secure_competition\\box1\\Broker\\src\\broker\\iser\\ruc\\edu\\cn\\IIsolatedProcessService.aidl
  */
 package broker.iser.ruc.edu.cn;
 public interface IIsolatedProcessService extends android.os.IInterface
@@ -135,6 +135,27 @@ _result.writeToParcel(reply, android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE
 else {
 reply.writeInt(0);
 }
+return true;
+}
+<<<<<<< HEAD
+case TRANSACTION_setBrokerCaller:
+=======
+case TRANSACTION_startActivityFromBroker:
+>>>>>>> origin/master
+{
+data.enforceInterface(DESCRIPTOR);
+android.os.IBinder _arg0;
+_arg0 = data.readStrongBinder();
+<<<<<<< HEAD
+this.setBrokerCaller(_arg0);
+reply.writeNoException();
+=======
+java.lang.String _arg1;
+_arg1 = data.readString();
+int _result = this.startActivityFromBroker(_arg0, _arg1);
+reply.writeNoException();
+reply.writeInt(_result);
+>>>>>>> origin/master
 return true;
 }
 }
@@ -319,6 +340,40 @@ _data.recycle();
 }
 return _result;
 }
+<<<<<<< HEAD
+@Override public void setBrokerCaller(android.os.IBinder caller) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeStrongBinder(caller);
+mRemote.transact(Stub.TRANSACTION_setBrokerCaller, _data, _reply, 0);
+_reply.readException();
+=======
+@Override public int startActivityFromBroker(android.os.IBinder resultTo, java.lang.String action) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+int _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeStrongBinder(resultTo);
+_data.writeString(action);
+mRemote.transact(Stub.TRANSACTION_startActivityFromBroker, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readInt();
+>>>>>>> origin/master
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+<<<<<<< HEAD
+=======
+return _result;
+>>>>>>> origin/master
+}
 }
 static final int TRANSACTION_getApplicationThread = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
 static final int TRANSACTION_registerCallBack = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
@@ -330,6 +385,11 @@ static final int TRANSACTION_trySetServiceCache = (android.os.IBinder.FIRST_CALL
 static final int TRANSACTION_tryChangeAm = (android.os.IBinder.FIRST_CALL_TRANSACTION + 7);
 static final int TRANSACTION_transAMBinder = (android.os.IBinder.FIRST_CALL_TRANSACTION + 8);
 static final int TRANSACTION_getHolderFromBroker = (android.os.IBinder.FIRST_CALL_TRANSACTION + 9);
+<<<<<<< HEAD
+static final int TRANSACTION_setBrokerCaller = (android.os.IBinder.FIRST_CALL_TRANSACTION + 10);
+=======
+static final int TRANSACTION_startActivityFromBroker = (android.os.IBinder.FIRST_CALL_TRANSACTION + 10);
+>>>>>>> origin/master
 }
 public android.os.IBinder getApplicationThread() throws android.os.RemoteException;
 public void registerCallBack(broker.iser.ruc.edu.cn.IBrokerProcess mb) throws android.os.RemoteException;
@@ -343,4 +403,9 @@ public void trySetServiceCache() throws android.os.RemoteException;
 public void tryChangeAm() throws android.os.RemoteException;
 public void transAMBinder(android.os.IBinder b) throws android.os.RemoteException;
 public android.app.ContentProviderHolder getHolderFromBroker(android.os.IBinder AppThread, java.lang.String name, boolean stable) throws android.os.RemoteException;
+<<<<<<< HEAD
+public void setBrokerCaller(android.os.IBinder caller) throws android.os.RemoteException;
+=======
+public int startActivityFromBroker(android.os.IBinder resultTo, java.lang.String action) throws android.os.RemoteException;
+>>>>>>> origin/master
 }

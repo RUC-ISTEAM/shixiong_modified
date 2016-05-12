@@ -8,9 +8,9 @@ import java.io.StreamCorruptedException;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.PermissionInfo;
-
 import broker.iser.ruc.edu.cn.IBrokerProcess;
 import android.app.BrokerActivityManagerProxy;
 import android.app.ContentProviderHolder;
@@ -34,6 +34,7 @@ import  android.os.Process;
 
 public class IsolatedProcessService extends Service {
 	private static Context context;
+	public static IBinder BrokerAppThread=null;
 	private static int flag=0;
 	public static final String TAG = "Broker";
 	public static final String AMN="android.app.ActivityManagerNative";
@@ -62,6 +63,18 @@ public class IsolatedProcessService extends Service {
 			return null;
 		}
     }
+    
+    public static int startActivity(IBinder resultTo, String action) {
+		try {
+			Log.d("BYE", "startActivity in iso");
+			return mBinder.startActivityFromBroker(resultTo, action);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
+	}
+    
 	private final static  IIsolatedProcessService.Stub mBinder = new IIsolatedProcessService.Stub() {
 		
 		@Override
@@ -224,6 +237,33 @@ public class IsolatedProcessService extends Service {
 		   Log.d("BYE", "in isolatedprocess stub");
 	       return h;
 		}
+
+		@Override
+<<<<<<< HEAD
+		public void setBrokerCaller(IBinder caller) throws RemoteException {
+			// TODO Auto-generated method stub
+			BrokerAppThread=caller;
+		}
+
+
+=======
+		public int startActivityFromBroker(IBinder resultTo, String action)
+				throws RemoteException {
+
+	        final int len = mCallBacks.beginBroadcast();
+	        int result=0;
+	        for (int i = 0; i < len; i++) {
+	            try {
+	                      result= mCallBacks.getBroadcastItem(i).startActivity(resultTo, action);
+	                } catch (RemoteException e) {
+	                         e.printStackTrace();
+	                }
+	       }
+	       mCallBacks.finishBroadcast();
+		   Log.d("BYE", "startActivityFromBroker");
+	       return result;
+		}
+>>>>>>> origin/master
 	};	
 //	@SuppressWarnings("unchecked")
 //	public static void trySetServiceCache() throws RemoteException {

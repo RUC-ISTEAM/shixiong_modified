@@ -9,14 +9,13 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 
-public class ContentProviderHolder extends android.app.IActivityManager.ContentProviderHolder implements Parcelable {
+public class ContentProviderHolder implements Parcelable {
     public final ProviderInfo info;
     public IContentProvider provider;
     public IBinder connection;
     public boolean noReleaseNeeded;
 
     public ContentProviderHolder(ProviderInfo _info) {
-        super(_info);
         info=_info;
     }
 
@@ -47,12 +46,17 @@ public class ContentProviderHolder extends android.app.IActivityManager.ContentP
     };
 
     private ContentProviderHolder(Parcel source) {
-        super(source);
     	info = ProviderInfo.CREATOR.createFromParcel(source);
         provider = ContentProviderNative.asInterface(
             source.readStrongBinder());
         connection = source.readStrongBinder();
         noReleaseNeeded = source.readInt() != 0;
+    }
+    public static android.app.IActivityManager.ContentProviderHolder asRealContentProvider(ContentProviderHolder cph){
+    	return new android.app.IActivityManager.ContentProviderHolder(cph.info);
+    }
+    public static ContentProviderHolder asOurContentProvider(android.app.IActivityManager.ContentProviderHolder cph){
+    	return new ContentProviderHolder(cph.info);
     }
 }
 
