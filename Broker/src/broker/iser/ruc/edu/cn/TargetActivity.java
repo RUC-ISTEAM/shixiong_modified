@@ -371,8 +371,9 @@ public class TargetActivity extends Activity{
 				IActivityManager BrokerProxy=(IActivityManager)Reflect.invokeMethod("android.app.ActivityManagerNative","getDefault",context);
 				
 		        data.writeStrongBinder(BrokerProxy != null ? BrokerProxy.asBinder() : null);
-		        Intent intent2 = new Intent();
-		        intent2.setAction(action);
+//		        Intent intent2 = new Intent();
+//		        intent2.setAction(action);
+		        Intent intent2 = new Intent(action);
 		        intent2.writeToParcel(data, 0);
 		        data.writeString(null);
 		        data.writeStrongBinder(resultTo);
