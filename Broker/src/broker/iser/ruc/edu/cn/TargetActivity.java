@@ -358,9 +358,9 @@ public class TargetActivity extends Activity{
 					System.out.println("--Class: " + clazz);
 					Method[] methods = clazz.getDeclaredMethods();
 					
-					for(int i =1;i<=methods.length;i++){
-						System.out.println("--Method--"+i+": "+methods[i-1]);
-					}
+				//	for(int i =1;i<=methods.length;i++){
+				//		System.out.println("--Method--"+i+": "+methods[i-1]);
+				//	}
 					try {
 						BrokerHolder=ContentProviderHolder.asOurContentProvider((android.app.IActivityManager.ContentProviderHolder) methods[32].invoke(BrokerProxy, AppThreadBroker,name,stable));
 					} catch (IllegalArgumentException e) {
