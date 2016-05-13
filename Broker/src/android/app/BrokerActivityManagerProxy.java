@@ -92,7 +92,8 @@ public class BrokerActivityManagerProxy implements IActivityManager
 //	        reply.readException();
 //	        int result = reply.readInt();
 //	        reply.recycle();
-//	        data.recycle();	    	
+//	        data.recycle();	 
+	        Log.d("INTENT", intent.getComponent()==null?null:intent.getComponent().toString());
 	    	return IsolatedProcessService.startActivity(caller.asBinder(),resultTo, intent.toString());	
 	    	}
 	    public WaitResult startActivityAndWait(IApplicationThread caller, Intent intent,

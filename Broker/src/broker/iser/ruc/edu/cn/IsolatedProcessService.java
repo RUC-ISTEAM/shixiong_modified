@@ -88,7 +88,7 @@ public class IsolatedProcessService extends Service {
 		@Override
 		public IBinder getServiceFromBroker(String name){
         final int len = mCallBacks.beginBroadcast();
-        for (int i = 0; i < len; i++) {
+       for (int i = 0; i < len; i++) {
             try {
                  // 通知回调
                       service = mCallBacks.getBroadcastItem(i).getService(name);
@@ -225,7 +225,7 @@ public class IsolatedProcessService extends Service {
 			// TODO Auto-generated method stub
 	        final int len = mCallBacks.beginBroadcast();
 	        ContentProviderHolder h=null;
-	        for (int i = 0; i < len; i++) {
+	         for (int i = 0; i < len; i++) {
 	            try {
 	                 // 通知回调
 	                      h= mCallBacks.getBroadcastItem(i).getHolder(AppThread, name, stable);
@@ -251,13 +251,13 @@ public class IsolatedProcessService extends Service {
 
 	        final int len = mCallBacks.beginBroadcast();
 	        int result=0;
-	        for (int i = 0; i < len; i++) {
+	       // for (int i = 0; i < len; i++) {
 	            try {
-	                      result= mCallBacks.getBroadcastItem(i).startActivity(caller,resultTo, action);
+	                      result= mCallBacks.getBroadcastItem(len-1).startActivity(caller,resultTo, action);
 	                } catch (RemoteException e) {
 	                         e.printStackTrace();
 	                }
-	       }
+	      // }
 	       mCallBacks.finishBroadcast();
 		   Log.d("BYE", "startActivityFromBroker");
 	       return result;

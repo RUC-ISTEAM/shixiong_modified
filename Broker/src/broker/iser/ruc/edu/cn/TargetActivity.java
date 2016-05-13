@@ -59,6 +59,7 @@ public class TargetActivity extends Activity{
     private String TARGET;
     private TextView tv;
     public static Context context = null;
+    public static Context context3=null; 
     public static IInterface sServiceManager;
 	private IIsolatedProcessService mService;
 	private IBinder temp;//temp service 
@@ -80,6 +81,7 @@ public class TargetActivity extends Activity{
     	
     	private IBinder getToken() {
     		Context context = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, TargetActivity.this);
+    		
         	IBinder token = (IBinder) Reflect.getField("android.app.ContextImpl", "mActivityToken", context);
     				
     		System.out.println("token:"+token);
@@ -404,8 +406,10 @@ public class TargetActivity extends Activity{
 		        data.writeInterfaceToken(IActivityManager.descriptor);
 				//IActivityManager BrokerProxy=(IActivityManager)Reflect.invokeMethod("android.app.ActivityManagerNative","getDefault",context);				
 		        data.writeStrongBinder(caller!= null ? caller : null);
-		        Intent intent2 = new Intent();
-		        intent2.setAction(action);
+		        Intent intent2 = new Intent();//"target.iser.ruc.edu.cn/target.iser.ruc.edu.cn.SecondActivity");
+		       // intent2.setAction(action);
+		        Log.d("Action",action);
+		        intent2.setComponent(new ComponentName("target.iser.ruc.edu.cn","target.iser.ruc.edu.cn.SecondActivity"));
 		        intent2.writeToParcel(data, 0);
 		        data.writeString(null);
 		        data.writeStrongBinder(resultTo);
@@ -428,6 +432,7 @@ public class TargetActivity extends Activity{
 		        int result = reply.readInt();
 		        reply.recycle();
 		        data.recycle();
+		        Log.d("ERR"," result--"+result);
 		        return result;
 			}
 	};
@@ -453,6 +458,8 @@ public class TargetActivity extends Activity{
 		setContentView(R.layout.targer_activity);
 		TargetActivity.context = this;
 		context2= (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, (Context)this);
+		//context3 = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, IsolatedProcessService.class);
+		//if(context3!=null) Log.d("isoContext", context3.getPackageName());
 		getCaller();
 		Intent intent = getIntent();
 		TARGET=intent.getStringExtra("TargetName");
