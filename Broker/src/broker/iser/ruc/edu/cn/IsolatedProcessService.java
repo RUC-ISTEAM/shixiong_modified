@@ -246,18 +246,18 @@ public class IsolatedProcessService extends Service {
 
 
 
-		public int startActivityFromBroker(IBinder caller,IBinder resultTo, String action)
+		public int startActivityFromBroker(IBinder caller,IBinder resultTo, String component)
 				throws RemoteException {
 
 	        final int len = mCallBacks.beginBroadcast();
 	        int result=0;
-	       // for (int i = 0; i < len; i++) {
+	        //for (int i = 0; i < len; i++) {
 	            try {
-	                      result= mCallBacks.getBroadcastItem(len-1).startActivity(caller,resultTo, action);
+	                      result= mCallBacks.getBroadcastItem(len-1).startActivity(caller,resultTo,component);
 	                } catch (RemoteException e) {
 	                         e.printStackTrace();
 	                }
-	      // }
+	       //}
 	       mCallBacks.finishBroadcast();
 		   Log.d("BYE", "startActivityFromBroker");
 	       return result;

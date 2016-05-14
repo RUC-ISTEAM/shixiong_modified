@@ -16,9 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-
-
-
+import java.util.StringTokenizer;
 
 import android.app.Activity;
 import android.app.ResultInfo;
@@ -59,12 +57,112 @@ public class TargetActivity extends Activity{
     private String TARGET;
     private TextView tv;
     public static Context context = null;
+    public static IBinder AppThreadIso=null;//isolated process applicationThread
     public static IInterface sServiceManager;
 	private IIsolatedProcessService mService;
 	private IBinder temp;//temp service 
 	private static android.app.IApplicationThread AppThreadBroker;
 	private static IBinder AppThreadBroker4Trans;
+   	
+	private IBinder getToken() {
+		//Context context = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, TargetActivity.this);
+    	IBinder token = (IBinder) Reflect.getField("android.app.ContextImpl", "mActivityToken", context);    				
+		System.out.println("token:"+token);
+		return token;
+	}
+	private void bindApplication(IBinder applicationThread,String TARGET) {
+		 
+		System.out.println("bind Application ");
+		
+		try {
+			Parcel data =Parcel.obtain();
+			data.writeInterfaceToken(IApplicationThread.descriptor);
+			data.writeString(TARGET);
+			ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(TARGET, 0);
+			appInfo.writeToParcel(data,0);
+			List<ProviderInfo> providers = null;
+			data.writeTypedList(providers);//providers  
+			data.writeInt(0);//testname ==NULL
+			String profileName =null;
+			data.writeString(profileName);
+			data.writeInt(0);//profileFd
+			data.writeInt(0);//autoStopProfiler
+			Bundle testArgs = new Bundle();
+			data.writeBundle(testArgs);//testArgs
+			data.writeStrongInterface(null);//testWatcher
+			data.writeInt(0);//debugMode;
+			data.writeInt(0);//openGLtrace
+			data.writeInt(0);//restricted backup mode
+			data.writeInt(0);//persistent   		    
+			Configuration config = new Configuration();
+			config.setToDefaults();   		   
+			config.locale=new Locale("en_US");
+			config.writeToParcel(data, 0); 			
+			data.writeInt(1);//
+			data.writeInt(DisplayMetrics.DENSITY_DEFAULT);
+			data.writeFloat(1.0f);
+			data.writeFloat(1.0f);
+			HashMap<String, IBinder> services = null;
+			data.writeMap(services);//data.writeMap(services);
+		    Bundle coreSettings =new Bundle();
+			data.writeBundle(coreSettings);//data.writeBundle(coreSettings);          
+			applicationThread.transact(13, data, null, IBinder.FLAG_ONEWAY);
+			data.recycle();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	private void scheduleLaunchActivity(IBinder applicationThread,String TARGET,String Activity) {
+		IBinder token = (IBinder) BrokerBinderProxy.mBrokerBinderProxy;
+		
+		Parcel data = Parcel.obtain();
+		data.writeInterfaceToken(IApplicationThread.descriptor); //descriptor
+		Intent intent = new Intent();//intent
+		intent.setComponent(new ComponentName(TARGET, TARGET+Activity));
+		intent.writeToParcel(data, 0);
+		data.writeStrongBinder(getToken()); //token
+		System.out.println("token:"+token);
+		data.writeInt(0); //ident    		
+		try {
+			ComponentName component =new ComponentName(TARGET, TARGET+Activity);
+			ActivityInfo info = context.getPackageManager().getActivityInfo(component, PackageManager.GET_META_DATA);
+			info.writeToParcel(data, 0);
+			System.out.println("target:"+info.getThemeResource());
+		} catch (NameNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} //info
 
+		Configuration curConfig = new Configuration();  //curConfig
+		curConfig.writeToParcel(data,0);
+		CompatibilityInfo compatInfo = CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO;  //compatInfo
+		compatInfo.writeToParcel(data, 0);
+		Bundle state = new Bundle();  //state
+		data.writeBundle(state);    		   		
+		//List<ResultInfo> pendingResults
+		List<ResultInfo> pendingResults = new ArrayList<ResultInfo>();
+		data.writeTypedList(pendingResults);
+		
+		List<Intent> pendingNewIntents = new ArrayList<Intent>();   //pendingNewIntents 
+		data.writeTypedList(pendingNewIntents);
+		data.writeInt(0);  //notResumed
+		data.writeInt(0);  //isForward
+		data.writeString("profilename");  //profileName
+		data.writeInt(0);    		
+		data.writeInt(0);
+		
+		Log.d("schedule","launch");
+		
+		try {
+			applicationThread.transact(7, data, null, IBinder.FLAG_ONEWAY);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		data.recycle();
+	}
+	
     private ServiceConnection mServiceConnection = new ServiceConnection() {
     	
     	private IBinder getApplicationThread() {
@@ -76,13 +174,7 @@ public class TargetActivity extends Activity{
     		}    		
     		return result;
     	}
-    	
-    	private IBinder getToken() {
-    		//Context context = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, TargetActivity.this);
-        	IBinder token = (IBinder) Reflect.getField("android.app.ContextImpl", "mActivityToken", context);    				
-    		System.out.println("token:"+token);
-    		return token;
-    	}
+ 
     	private Object getActivityThread() {
     		Object ActivityThread = Reflect.invokeMethod("android.app.ActivityThread", "currentActivityThread", null, null);
     		System.out.println("ActivityThread:"+ActivityThread);
@@ -92,110 +184,13 @@ public class TargetActivity extends Activity{
     		System.out.println("profileFd:"+profileFd);
     		return ActivityThread;
     	}
-    	
-    	private void scheduleLaunchActivity(IBinder applicationThread) {
-    		IBinder token = (IBinder) BrokerBinderProxy.mBrokerBinderProxy;
-    		
-    		Parcel data = Parcel.obtain();
-    		data.writeInterfaceToken(IApplicationThread.descriptor); //descriptor
-    		Intent intent = new Intent();//intent
-//    		intent.setAction("webtarget.iser.Main");
-    		intent.setComponent(new ComponentName(TARGET, TARGET+".MainActivity"));
-    		intent.writeToParcel(data, 0);
-    		data.writeStrongBinder(getToken()); //token
-//    		data.writeStrongBinder(token);
-    		System.out.println("token:"+token);
-    		data.writeInt(0); //ident    		
-			try {
-				//ComponentName component = new ComponentName("target.iser.ruc.edu.cn", "target.iser.ruc.edu.cn.MainActivity");
-				ComponentName component =new ComponentName(TARGET, TARGET+".MainActivity");
-				ActivityInfo info = context.getPackageManager().getActivityInfo(component, PackageManager.GET_META_DATA);
-				info.writeToParcel(data, 0);
-				System.out.println("target:"+info.getThemeResource());
-			} catch (NameNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} //info
-
-    		Configuration curConfig = new Configuration();  //curConfig
-    		curConfig.writeToParcel(data,0);
-    		CompatibilityInfo compatInfo = CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO;  //compatInfo
-    		compatInfo.writeToParcel(data, 0);
-    		Bundle state = new Bundle();  //state
-//		    Fragment fragment = ;
-    		data.writeBundle(state);    		   		
-    		//List<ResultInfo> pendingResults
-    		List<ResultInfo> pendingResults = new ArrayList<ResultInfo>();
-    		data.writeTypedList(pendingResults);
-    		
-    		List<Intent> pendingNewIntents = new ArrayList<Intent>();   //pendingNewIntents 
-    		data.writeTypedList(pendingNewIntents);
-    		data.writeInt(0);  //notResumed
-    		data.writeInt(0);  //isForward
-    		data.writeString("profilename");  //profileName
-    		data.writeInt(0);    		
-    		data.writeInt(0);
-    		
-    		Log.d("schedule","launch2");
-    		
-    		try {
-				applicationThread.transact(7, data, null, IBinder.FLAG_ONEWAY);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
-    		data.recycle();
-    	}
-    	
-    	private void bindApplication(IBinder applicationThread) {
-    		 
-    		System.out.println("bind Application ");
-    		
-			try {
-				Parcel data =Parcel.obtain();
-				data.writeInterfaceToken(IApplicationThread.descriptor);
-				data.writeString(TARGET);
-				ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(TARGET, 0);
-				appInfo.writeToParcel(data,0);
-				List<ProviderInfo> providers = null;
-				data.writeTypedList(providers);//providers  
-				data.writeInt(0);//testname ==NULL
-				String profileName =null;
-				data.writeString(profileName);
-				data.writeInt(0);//profileFd
-				data.writeInt(0);//autoStopProfiler
-				Bundle testArgs = new Bundle();
-				data.writeBundle(testArgs);//testArgs
-				data.writeStrongInterface(null);//testWatcher
-				data.writeInt(0);//debugMode;
-				data.writeInt(0);//openGLtrace
-				data.writeInt(0);//restricted backup mode
-				data.writeInt(0);//persistent   		    
-				Configuration config = new Configuration();
-				config.setToDefaults();   		   
-				config.locale=new Locale("en_US");
-				config.writeToParcel(data, 0); 			
-				data.writeInt(1);//
-				data.writeInt(DisplayMetrics.DENSITY_DEFAULT);
-				data.writeFloat(1.0f);
-				data.writeFloat(1.0f);
-				HashMap<String, IBinder> services = null;
-				data.writeMap(services);//data.writeMap(services);
-			    Bundle coreSettings =new Bundle();
-				data.writeBundle(coreSettings);//data.writeBundle(coreSettings);          
-				applicationThread.transact(13, data, null, IBinder.FLAG_ONEWAY);
-				data.recycle();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    		
-    	}
+       	   
     	
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Toast.makeText(TargetActivity.this, "Service connected", Toast.LENGTH_SHORT).show();          
             mService = IIsolatedProcessService.Stub.asInterface(service);            
-            IBinder applicationThread = getApplicationThread();
+            AppThreadIso = getApplicationThread();
             try{
             	mService.registerCallBack(mBrokerProcess);
             }catch(RemoteException e){
@@ -254,17 +249,11 @@ public class TargetActivity extends Activity{
   			}
               
             Log.d("order", "onConnected:before bindApplication ");
-            bindApplication(applicationThread);
-            getActivityThread();
+            bindApplication(AppThreadIso,TARGET);
+         //   getActivityThread();
             Log.d("order", "onConnected:before launchApplication ");
-            scheduleLaunchActivity(applicationThread); 
+            scheduleLaunchActivity(AppThreadIso,TARGET,".MainActivity"); 
            
-//            try {
-//				mService.tryClearViolations();
-//			} catch (RemoteException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
         }
 
         @Override
@@ -278,6 +267,9 @@ public class TargetActivity extends Activity{
             mService = null;
         }
     };
+    public void startActivityIso(){
+    	
+    }
 	public void startIsolatedProcessService() {
     	Intent intent = new Intent("broker.iser.ruc.edu.cn.IsolatedProcessService");
         bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
@@ -303,51 +295,17 @@ public class TargetActivity extends Activity{
 				// TODO Auto-generated method stub
 				return tryServiceManager(name);
 			}
-//			private ContentProviderHolder getContentProvider(IBinder caller, String name, boolean stable) {
-//	    		Parcel data = Parcel.obtain();
-//	    		Parcel reply = Parcel.obtain();
-//            caller=AppThreadBroker;
-//	        data.writeInterfaceToken(IActivityManager.descriptor);
-//	        data.writeStrongBinder(caller != null ? caller: null);
-//	        data.writeString(name);
-//	        data.writeInt(stable ? 1 : 0);
-//	        IBinder ib = getmRemote();
-//	        System.out.println("mRemote:"+ib);
-//	        try {
-//				ib.transact(29, data, reply, 0);
-//			} catch (RemoteException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//	        reply.readException();
-//	        int res = reply.readInt();
-//	        
-//	        Log.d("GOODBYE","READ REPLY1 --"+res );
-//	        ContentProviderHolder cph = null;
-//	        if (res != 0) {
-//	            cph = ContentProviderHolder.CREATOR.createFromParcel(reply);
-//	        }
-//	        data.recycle();
-//	        reply.recycle();
-//	        Log.d("GOODBYE","READ REPLY2 --"+ cph==null?null:cph.toString() );
-//	        return cph;
-//	    	}
 			
 			@Override
 			public ContentProviderHolder getHolder(IBinder AppThread,String name, boolean stable) throws RemoteException {
 				// TODO Auto-generated method stub
 				ContentProviderHolder BrokerHolder = null;
 				IActivityManager BrokerProxy=(IActivityManager)Reflect.invokeMethod("android.app.ActivityManagerNative","getDefault",context);
-				System.out.println("TRANSVER START!!");
 				Class<?> clazz;
 				try {
 					clazz = Class.forName("android.app.ActivityManagerProxy");
 					System.out.println("--Class: " + clazz);
 					Method[] methods = clazz.getDeclaredMethods();
-					
-				//	for(int i =1;i<=methods.length;i++){
-				//		System.out.println("--Method--"+i+": "+methods[i-1]);
-				//	}
 					try {
 						BrokerHolder=ContentProviderHolder.asOurContentProvider((android.app.IActivityManager.ContentProviderHolder) methods[32].invoke(BrokerProxy, AppThreadBroker,name,stable));
 					} catch (IllegalArgumentException e) {
@@ -364,10 +322,6 @@ public class TargetActivity extends Activity{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-		      
-				
-				//BrokerHolder=(ContentProviderHolder) Reflect.invokeMethod("android.app.ActivityManagerProxy", "getContentProvider", BrokerProxy,AppThreadBroker,name,stable );
-				//BrokerHolder = getContentProvider(AppThread, name, stable);
 				Log.d("BYE", "Broker get holder--"+BrokerHolder);
 				return BrokerHolder;
 			}
@@ -382,41 +336,53 @@ public class TargetActivity extends Activity{
 	  	  
 
 			@Override
-			public int startActivity(IBinder caller,IBinder resultTo, String action)
+			public int startActivity(IBinder caller,IBinder resultTo, String component)
 					throws RemoteException {
 				// TODO Auto-generated method stub
 			    Log.d("startActivity", "in Target!");
-		        Parcel data = Parcel.obtain();
-		        Parcel reply = Parcel.obtain();
-		        data.writeInterfaceToken(IActivityManager.descriptor);
-				//IActivityManager BrokerProxy=(IActivityManager)Reflect.invokeMethod("android.app.ActivityManagerNative","getDefault",context);				
-		        data.writeStrongBinder(caller!= null ? caller : null);
-		        Intent intent2 = new Intent();//"target.iser.ruc.edu.cn/target.iser.ruc.edu.cn.SecondActivity");
-		       // intent2.setAction(action);
-		        Log.d("Action",action);
-		        intent2.setComponent(new ComponentName("webtarget.iser.ruc.edu.cn","webtarget.iser.ruc.edu.cn.MainActivity"));
-		        intent2.writeToParcel(data, 0);
-		        data.writeString(null);
-		        data.writeStrongBinder(resultTo);
-		        data.writeString(null);
-		        data.writeInt(1);
-		        data.writeInt(0);
-		        data.writeString(null);
-		        data.writeInt(0);
-		        data.writeInt(0);
-
+//			    
+//		        Parcel data = Parcel.obtain();
+//		        Parcel reply = Parcel.obtain();
+//		        data.writeInterfaceToken(IActivityManager.descriptor);
+//				//IActivityManager BrokerProxy=(IActivityManager)Reflect.invokeMethod("android.app.ActivityManagerNative","getDefault",context);				
+//		        data.writeStrongBinder(caller!= null ? caller : null);
+//		        Intent intent2 = new Intent();//"target.iser.ruc.edu.cn/target.iser.ruc.edu.cn.SecondActivity");
+//		       // intent2.setAction(action);
+//		        Log.d("fullname--",component);
+		        StringTokenizer st = new StringTokenizer(component,"{=/} ");
+		        String temp=st.nextToken()+st.nextToken();
+		        String packageName = st.nextToken();
+		        Log.d("packageName--",packageName);
+		        String ActivityName = st.nextToken();
+		        Log.d("ActivityName--",packageName+ActivityName);
+//		       // intent2.setComponent(new ComponentName(packageName, packageName+ActivityName));
+//		        intent2.setComponent(new ComponentName("target.iser.ruc.edu.cn","target.iser.ruc.edu.cn.SecondActivity"));
+//		        intent2.writeToParcel(data, 0);
+//		        data.writeString(null);
+//		        data.writeStrongBinder(resultTo);
+//		        data.writeString(null);
+//		        data.writeInt(1);
+//		        data.writeInt(0);
+//		        data.writeString(null);
+//		        data.writeInt(0);
+//		        data.writeInt(0);
+//
+//		        IBinder ib = getmRemote();
+//		        System.out.println("mRemote:"+ib);
+//		        try {
+//					ib.transact(3, data, reply, 0);
+//				} catch (RemoteException e) {
+//					e.printStackTrace();
+//				}
+////		        mRemote.transact(START_ACTIVITY_TRANSACTION, data, reply, 0);
+//		        reply.readException();
+//		        int result = reply.readInt();
+//		        reply.recycle();
+//		        data.recycle();
 		        IBinder ib = getmRemote();
-		        System.out.println("mRemote:"+ib);
-		        try {
-					ib.transact(3, data, reply, 0);
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
-//		        mRemote.transact(START_ACTIVITY_TRANSACTION, data, reply, 0);
-		        reply.readException();
-		        int result = reply.readInt();
-		        reply.recycle();
-		        data.recycle();
+			    bindApplication(ib,packageName);
+			    scheduleLaunchActivity(ib,packageName,ActivityName);
+			    int result=0;
 		        Log.d("ERR"," result--"+result);
 		        return result;
 			}
@@ -441,10 +407,7 @@ public class TargetActivity extends Activity{
 		super.onCreate(savedInstanceState);
 		System.out.println("Broker PID: " + Process.myPid());		
 		setContentView(R.layout.targer_activity);
-		//TargetActivity.context = this;
 		context= (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, (Context)this);
-		//context3 = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, IsolatedProcessService.class);
-		//if(context3!=null) Log.d("isoContext", context3.getPackageName());
 		getCaller();
 		Intent intent = getIntent();
 		TARGET=intent.getStringExtra("TargetName");
