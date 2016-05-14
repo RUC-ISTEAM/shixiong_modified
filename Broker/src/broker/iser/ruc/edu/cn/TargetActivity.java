@@ -110,7 +110,8 @@ public class TargetActivity extends Activity{
     		System.out.println("token:"+token);
     		data.writeInt(0); //ident    		
 			try {
-				ComponentName component = new ComponentName("target.iser.ruc.edu.cn", "target.iser.ruc.edu.cn.MainActivity");
+				//ComponentName component = new ComponentName("target.iser.ruc.edu.cn", "target.iser.ruc.edu.cn.MainActivity");
+				ComponentName component =new ComponentName(TARGET, TARGET+".MainActivity");
 				ActivityInfo info = context.getPackageManager().getActivityInfo(component, PackageManager.GET_META_DATA);
 				info.writeToParcel(data, 0);
 				System.out.println("target:"+info.getThemeResource());
@@ -409,7 +410,7 @@ public class TargetActivity extends Activity{
 		        Intent intent2 = new Intent();//"target.iser.ruc.edu.cn/target.iser.ruc.edu.cn.SecondActivity");
 		       // intent2.setAction(action);
 		        Log.d("Action",action);
-		        intent2.setComponent(new ComponentName("target.iser.ruc.edu.cn","target.iser.ruc.edu.cn.SecondActivity"));
+		        intent2.setComponent(new ComponentName("webtarget.iser.ruc.edu.cn","webtarget.iser.ruc.edu.cn.MainActivity"));
 		        intent2.writeToParcel(data, 0);
 		        data.writeString(null);
 		        data.writeStrongBinder(resultTo);
@@ -444,7 +445,7 @@ public class TargetActivity extends Activity{
 	private IBinder tryServiceManager(String name) {
 		// TODO Auto-generated method stub
 		System.out.println("I:change ServiceManager to real");
-		Reflect.setField("android.os.ServiceManager", "broker", null, null);
+		//Reflect.setField("android.os.ServiceManager", "broker", null, null);
 		temp = (IBinder) Reflect.invokeMethod("android.os.ServiceManager", "getService", null, name);
 		Log.d("SM","YOU GOT THE SERVICE"+temp);		
 		return temp;

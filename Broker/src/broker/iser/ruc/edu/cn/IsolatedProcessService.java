@@ -209,13 +209,13 @@ public class IsolatedProcessService extends Service {
 	        if(gDefault != null) Log.d("AM", "fantastic:set to ours IActivityManager--"+gDefault.toString());
 	        IActivityManager bm=(IActivityManager)Reflect.invokeMethod(AMN,"getDefault",context);
 	        if(bm != null) Log.d("AM", "wonderful:check if geTDefault been changed --"+bm.toString());
-			flag++;
+		//	flag++;
 			}}
 		@Override
 		public void transAMBinder(IBinder b) throws RemoteException {
 			// TODO Auto-generated method stub
 			AMBinder=b;
-			Log.d("AM", "welcome: IBinder of activity--"+AMBinder.toString());			
+			if(AMBinder!=null) Log.d("AM", "welcome: IBinder of activity--"+AMBinder.toString());			
 			
 		}
 
@@ -312,13 +312,13 @@ public class IsolatedProcessService extends Service {
 		context = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, (Context)this);
 		// TODO Auto-generated method stub
 
-		Object backup =  Reflect.getField("android.os.ServiceManager", "broker", null);
-		Reflect.setField("android.os.ServiceManager", "broker", null, BrokerSystemManager.mBrokerSystemManager);
+		Object backup =  Reflect.getField("android.os.ServiceManager", "sServiceManager", null);
+		Reflect.setField("android.os.ServiceManager", "sServiceManager", null, BrokerSystemManager.mBrokerSystemManager);
 		
 		System.out.println("II: " + Reflect.invokeMethod("android.os.ServiceManager", "getIServiceManager", null, null));
 		
 		System.out.println("III: " + BrokerSystemManager.mBrokerSystemManager);
-		System.out.println("Broker: " + Reflect.getField("android.os.ServiceManager", "broker", null));
+		System.out.println("Broker: " + Reflect.getField("android.os.ServiceManager", "sServiceManager", null));
 
 		Log.d("order", "onbind:after setBroker ");
 		//trySetPackageManager();

@@ -27,16 +27,16 @@ public class BrokerSystemManager {
 			sbServiceManager = IServiceManager.Stub.asInterface(sServiceManager);
 			//System.out.println("now the sServiceManager is "+BrokerSystemManager.sbServiceManager);
 			//System.out.println("now the sServiceManager of Main  is "+MainActivity.sServiceManager);
-			Reflect.setField("android.os.ServiceManager", "broker", null, BrokerSystemManager.sbServiceManager);//set to real
-			System.out.println("I:change ServiceManager to real");
+			Reflect.setField("android.os.ServiceManager", "sServiceManager", null, BrokerSystemManager.sbServiceManager);//set to real
+			//System.out.println("I:change ServiceManager to real");
 			//Reflect.setField("android.os.ServiceManager", "broker", null,sbServiceManager);
 			//System.out.println("realbroker: " + Reflect.getField("android.os.ServiceManager", "broker", null));
 			//System.out.println("returnOfGetIServiceManager: " + Reflect.invokeMethod("android.os.ServiceManager", "getIServiceManager", null, null));
-			sbService = (IBinder) Reflect.invokeMethod("android.os.ServiceManager", "getService", null, name);//return sService		
+			sbService = (IBinder) Reflect.invokeMethod("android.os.ServiceManager", "getService", null, name);	
 			sService = IsolatedProcessService.getService(name);
 			if(sbService!=null) {sService = sbService;}
 			System.out.println("II:FINALLY:SUCCESS to getServise "+sService);
-			Reflect.setField("android.os.ServiceManager", "broker", null,BrokerSystemManager.mBrokerSystemManager);//set to wrong
+			Reflect.setField("android.os.ServiceManager", "sServiceManager", null,BrokerSystemManager.mBrokerSystemManager);//set to wrong
 			System.out.println("III:set back");
 			return sService;
 		}

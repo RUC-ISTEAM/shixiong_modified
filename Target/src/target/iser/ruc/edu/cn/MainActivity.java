@@ -42,6 +42,7 @@ public class MainActivity extends Activity {
 	            {  
 	              Log.d("TARGET", "you click it");
 	              first.append("you click it!");
+	              
 	            
 	            }  
 	        });  
@@ -51,12 +52,12 @@ public class MainActivity extends Activity {
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					  Intent intent = new Intent(MainActivity.this, SecondActivity.class);
-			          startActivity(intent);
+					Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+			        startActivity(intent);
 					finish();
 				}
 			};
-			timer.schedule(task, 10000);
+			timer.schedule(task, 5000);
 	}
 
 	@Override
