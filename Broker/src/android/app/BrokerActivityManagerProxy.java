@@ -57,7 +57,7 @@ public class BrokerActivityManagerProxy implements IActivityManager
 //	        data.writeStrongBinder(caller != null ? caller.asBinder() : null);
 //	        Log.d("GOODNIGHT", "caller--"+(caller != null ? caller.asBinder() : null));
 //	        intent.writeToParcel(data, 0);
-	        Log.d("GOODNIGHT", "intent--"+intent);
+//	        Log.d("GOODNIGHT", "intent--"+intent);
 //	        data.writeString(resolvedType);
 //	        Log.d("GOODNIGHT", "resolveType--"+resolvedType);
 //	        data.writeStrongBinder(resultTo);
@@ -273,10 +273,18 @@ public class BrokerActivityManagerProxy implements IActivityManager
 	            IIntentReceiver receiver,
 	            IntentFilter filter, String perm) throws RemoteException
 	    {
-	        Parcel data = Parcel.obtain();
+	        Log.d("registerReceiver", "here");
+	    	//return IsolatedProcessService.startActivity(caller.asBinder(),resultTo, intent.toString());	
+	    	Parcel data = Parcel.obtain();
 	        Parcel reply = Parcel.obtain();
 	        data.writeInterfaceToken(IActivityManager.descriptor);
 	        data.writeStrongBinder(caller != null ? caller.asBinder() : null);
+	        Log.d("GOODBYE", "IActivityManager.descriptor--"+IActivityManager.descriptor);
+	        Log.d("GOODBYE", "caller--"+(caller != null ? caller.asBinder() : null));
+	        Log.d("GOODBYE", "packageName--"+packageName);
+	        Log.d("GOODBYE", "receiver：type--IIntentReceiver--"+(receiver != null ? receiver.asBinder() : null));
+	        Log.d("GOODBYE", "filter(type IntentFilter)--"+filter);
+	        Log.d("GOODBYE", "perm (string)--"+perm);
 	        data.writeString(packageName);
 	        data.writeStrongBinder(receiver != null ? receiver.asBinder() : null);
 	        filter.writeToParcel(data, 0);

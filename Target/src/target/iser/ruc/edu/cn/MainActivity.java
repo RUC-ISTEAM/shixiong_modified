@@ -46,18 +46,18 @@ public class MainActivity extends Activity {
 	            
 	            }  
 	        });  
-		    Timer timer = new Timer();
-		    TimerTask task = new TimerTask() {
-				
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					Intent intent = new Intent(MainActivity.this, SecondActivity.class);
-			        startActivity(intent);
-					finish();
-				}
-			};
-			timer.schedule(task, 5000);
+//		    Timer timer = new Timer();
+//		    TimerTask task = new TimerTask() {
+//				
+//				@Override
+//				public void run() {
+//					// TODO Auto-generated method stub
+//					Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+//			        startActivity(intent);
+//					finish();
+//				}
+//			};
+//			timer.schedule(task, 5000);
 	}
 
 	@Override

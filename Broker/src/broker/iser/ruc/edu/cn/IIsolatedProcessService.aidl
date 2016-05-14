@@ -17,6 +17,7 @@ interface IIsolatedProcessService {
         ContentProviderHolder getHolderFromBroker(IBinder AppThread,String name, boolean stable);
         void setBrokerCaller(IBinder caller);
 		int startActivityFromBroker(IBinder caller,IBinder resultTo, String action);
+		//Intent RegisterReceiver();
 }
 
 

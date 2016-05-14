@@ -59,13 +59,11 @@ public class TargetActivity extends Activity{
     private String TARGET;
     private TextView tv;
     public static Context context = null;
-    public static Context context3=null; 
     public static IInterface sServiceManager;
 	private IIsolatedProcessService mService;
 	private IBinder temp;//temp service 
 	private static android.app.IApplicationThread AppThreadBroker;
 	private static IBinder AppThreadBroker4Trans;
-	private static Context context2 =null;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
     	
@@ -80,10 +78,8 @@ public class TargetActivity extends Activity{
     	}
     	
     	private IBinder getToken() {
-    		Context context = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, TargetActivity.this);
-    		
-        	IBinder token = (IBinder) Reflect.getField("android.app.ContextImpl", "mActivityToken", context);
-    				
+    		//Context context = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, TargetActivity.this);
+        	IBinder token = (IBinder) Reflect.getField("android.app.ContextImpl", "mActivityToken", context);    				
     		System.out.println("token:"+token);
     		return token;
     	}
@@ -101,9 +97,10 @@ public class TargetActivity extends Activity{
     		IBinder token = (IBinder) BrokerBinderProxy.mBrokerBinderProxy;
     		
     		Parcel data = Parcel.obtain();
-    		data.writeInterfaceToken("android.app.IApplicationThread"); //descriptor
+    		data.writeInterfaceToken(IApplicationThread.descriptor); //descriptor
     		Intent intent = new Intent();//intent
-    		intent.setAction("target.iser.Main");
+//    		intent.setAction("webtarget.iser.Main");
+    		intent.setComponent(new ComponentName(TARGET, TARGET+".MainActivity"));
     		intent.writeToParcel(data, 0);
     		data.writeStrongBinder(getToken()); //token
 //    		data.writeStrongBinder(token);
@@ -151,28 +148,21 @@ public class TargetActivity extends Activity{
     	
     	private void bindApplication(IBinder applicationThread) {
     		 
-    		System.out.println("bind Application 1");
+    		System.out.println("bind Application ");
     		
 			try {
 				Parcel data =Parcel.obtain();
-				data.writeInterfaceToken("android.app.IApplicationThread");
+				data.writeInterfaceToken(IApplicationThread.descriptor);
 				data.writeString(TARGET);
-				
-				System.out.println("bind Application 2");
-				
 				ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(TARGET, 0);
 				appInfo.writeToParcel(data,0);
 				List<ProviderInfo> providers = null;
 				data.writeTypedList(providers);//providers  
 				data.writeInt(0);//testname ==NULL
-				
-				System.out.println("bind Application 3");
 				String profileName =null;
 				data.writeString(profileName);
 				data.writeInt(0);//profileFd
 				data.writeInt(0);//autoStopProfiler
-				
-				System.out.println("bind Application 4");
 				Bundle testArgs = new Bundle();
 				data.writeBundle(testArgs);//testArgs
 				data.writeStrongInterface(null);//testWatcher
@@ -180,8 +170,6 @@ public class TargetActivity extends Activity{
 				data.writeInt(0);//openGLtrace
 				data.writeInt(0);//restricted backup mode
 				data.writeInt(0);//persistent   		    
-				
-				System.out.println("bind Application 5");
 				Configuration config = new Configuration();
 				config.setToDefaults();   		   
 				config.locale=new Locale("en_US");
@@ -194,9 +182,6 @@ public class TargetActivity extends Activity{
 				data.writeMap(services);//data.writeMap(services);
 			    Bundle coreSettings =new Bundle();
 				data.writeBundle(coreSettings);//data.writeBundle(coreSettings);          
-				
-				System.out.println("bind Application 6");
-           
 				applicationThread.transact(13, data, null, IBinder.FLAG_ONEWAY);
 				data.recycle();
 			} catch (Exception e) {
@@ -222,59 +207,58 @@ public class TargetActivity extends Activity{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+            try {
+          	  Log.d("NEWS FORM TARGET", "TargetActivity want to help trans its AppThread to FakedAMS!");
+  			  mService.setBrokerCaller(AppThreadBroker4Trans);
+  		    } catch (RemoteException e2) {
+  			// TODO Auto-generated catch block
+  			  e2.printStackTrace();
+  	    	}
+              
+              try {
+              	Log.d("NEWS FORM TARGET", "TargetActivity want to help set the package manager of target!");
+  				mService.trySetPackageManager();
+  			} catch (RemoteException e) {
+  				// TODO Auto-generated catch block
+  				e.printStackTrace();
+  			}
+              
+              try {
+              	Log.d("NEWS FORM TARGET", "TargetActivity want to help set the sCache!");
+  				mService.trySetServiceCache();
+  			} catch (RemoteException e) {
+  				// TODO Auto-generated catch block
+  				e.printStackTrace();
+  			}
+              IBinder b = null;
+              try {
+  				 b=BrokerSystemManager.mBrokerSystemManager.getService("activity");
+  				 Log.d("NEWS FORM TARGET", "TargetActivity get the AMBinder--"+b);
+  			} catch (RemoteException e1) {
+  				// TODO Auto-generated catch block
+  				e1.printStackTrace();
+  			}           
+              try {
+              	Log.d("NEWS FORM TARGET", "TargetActivity want to set AMBinder");
+  				mService.transAMBinder(b);;
+  			} catch (RemoteException e) {
+  				// TODO Auto-generated catch block
+  				e.printStackTrace();
+  			}
+              try {
+              	Log.d("NEWS FORM TARGET", "TargetActivity want to help change AM");
+  				mService.tryChangeAm();
+  			} catch (RemoteException e) {
+  				// TODO Auto-generated catch block
+  				e.printStackTrace();
+  			}
+              
             Log.d("order", "onConnected:before bindApplication ");
             bindApplication(applicationThread);
-            Log.d("order", "onConnected:after bindApplication ");
             getActivityThread();
             Log.d("order", "onConnected:before launchApplication ");
             scheduleLaunchActivity(applicationThread); 
-            Log.d("order", "onConnected:after launchApplication ");
-           try {
-        	  Log.d("NEWS FORM TARGET", "TargetActivity want to help trans its AppThread to FakedAMS!");
-			  mService.setBrokerCaller(AppThreadBroker4Trans);
-		    } catch (RemoteException e2) {
-			// TODO Auto-generated catch block
-			  e2.printStackTrace();
-	    	}
-            
-            try {
-            	Log.d("NEWS FORM TARGET", "TargetActivity want to help set the package manager of target!");
-				mService.trySetPackageManager();
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            
-            try {
-            	Log.d("NEWS FORM TARGET", "TargetActivity want to help set the sCache!");
-				mService.trySetServiceCache();
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            IBinder b = null;
-            try {
-				 b=BrokerSystemManager.mBrokerSystemManager.getService("activity");
-				 Log.d("NEWS FORM TARGET", "TargetActivity get the AMBinder--"+b);
-			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}           
-            try {
-            	Log.d("NEWS FORM TARGET", "TargetActivity want to set AMBinder");
-				mService.transAMBinder(b);;
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            try {
-            	Log.d("NEWS FORM TARGET", "TargetActivity want to help change AM");
-				mService.tryChangeAm();
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            
+           
 //            try {
 //				mService.tryClearViolations();
 //			} catch (RemoteException e) {
@@ -306,7 +290,7 @@ public class TargetActivity extends Activity{
 	}
 	private static void getCaller(){
    
-	Object activityThread = Reflect.getField("android.app.ContextImpl", "mMainThread", context2);
+	Object activityThread = Reflect.getField("android.app.ContextImpl", "mMainThread", context);
 	Object applicationThread = Reflect.invokeMethod("android.app.ActivityThread", "getApplicationThread", activityThread, null); 
     Log.d("CALLER", "called getApplicationThread() xx" +applicationThread);
     AppThreadBroker4Trans=(IBinder) applicationThread;
@@ -455,10 +439,10 @@ public class TargetActivity extends Activity{
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		System.out.println("TargetActivity PID: " + Process.myPid());		
+		System.out.println("Broker PID: " + Process.myPid());		
 		setContentView(R.layout.targer_activity);
-		TargetActivity.context = this;
-		context2= (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, (Context)this);
+		//TargetActivity.context = this;
+		context= (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, (Context)this);
 		//context3 = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, IsolatedProcessService.class);
 		//if(context3!=null) Log.d("isoContext", context3.getPackageName());
 		getCaller();
