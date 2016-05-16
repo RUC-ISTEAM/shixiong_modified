@@ -7,6 +7,7 @@ import android.content.pm.ProviderInfo;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 
 public class ContentProviderHolder implements Parcelable {
@@ -53,10 +54,23 @@ public class ContentProviderHolder implements Parcelable {
         noReleaseNeeded = source.readInt() != 0;
     }
     public static android.app.IActivityManager.ContentProviderHolder asRealContentProvider(ContentProviderHolder cph){
-    	return new android.app.IActivityManager.ContentProviderHolder(cph.info);
+    	Log.d("contentHolder", "Real:"+cph);
+    	android.app.IActivityManager.ContentProviderHolder cph2= new android.app.IActivityManager.ContentProviderHolder(cph.info);
+    	cph2.provider = cph.provider;
+    	cph2.connection = cph.connection;
+    	cph2.noReleaseNeeded = cph.noReleaseNeeded;
+    	Log.d("contentHolder", "asReal:"+cph);
+    	return cph2;
+    	
     }
     public static ContentProviderHolder asOurContentProvider(android.app.IActivityManager.ContentProviderHolder cph){
-    	return new ContentProviderHolder(cph.info);
+    	Log.d("contentHolder", "Our:"+cph);
+    	ContentProviderHolder cph2= new ContentProviderHolder(cph.info);
+    	cph2.provider = cph.provider;
+    	cph2.connection = cph.connection;
+    	cph2.noReleaseNeeded = cph.noReleaseNeeded;
+    	Log.d("contentHolder", "asOur:"+cph);    	
+    	return cph2;
     }
 }
 

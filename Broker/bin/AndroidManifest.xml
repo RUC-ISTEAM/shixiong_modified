@@ -25,6 +25,10 @@
         <activity 
             android:name=".TargetActivity"
             android:label="TARGET">                   
+        </activity>   
+        <activity 
+            android:name=".TargetActivity2"
+            android:label="TARGET">                   
         </activity>       
         <service 
             android:enabled="true" 

@@ -53,9 +53,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class TargetActivity extends Activity{
+public class TargetActivity2 extends Activity{
     private String TARGET;
-    private Context context2;
+    private String Activity;
     private TextView tv;
     public static Context context = null;
     public static IBinder AppThreadIso=null;//isolated process applicationThread
@@ -64,6 +64,7 @@ public class TargetActivity extends Activity{
 	private IBinder temp;//temp service 
 	private static android.app.IApplicationThread AppThreadBroker;
 	private static IBinder AppThreadBroker4Trans;
+   	
 	private IBinder getToken() {
 		//Context context = (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, TargetActivity.this);
     	IBinder token = (IBinder) Reflect.getField("android.app.ContextImpl", "mActivityToken", context);    				
@@ -188,7 +189,7 @@ public class TargetActivity extends Activity{
     	
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Toast.makeText(TargetActivity.this, "Service connected", Toast.LENGTH_SHORT).show();          
+            Toast.makeText(TargetActivity2.this, "Service connected", Toast.LENGTH_SHORT).show();          
             mService = IIsolatedProcessService.Stub.asInterface(service);            
             AppThreadIso = getApplicationThread();
             try{
@@ -252,13 +253,13 @@ public class TargetActivity extends Activity{
             bindApplication(AppThreadIso,TARGET);
          //   getActivityThread();
             Log.d("order", "onConnected:before launchApplication ");
-            scheduleLaunchActivity(AppThreadIso,TARGET,".MainActivity"); 
+            scheduleLaunchActivity(AppThreadIso,TARGET,Activity); 
            
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Toast.makeText(TargetActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
+            Toast.makeText(TargetActivity2.this, "Service disconnected", Toast.LENGTH_SHORT).show();
             try{
             	mService.unregisterCallBack(mBrokerProcess);
             }catch(RemoteException e){
@@ -355,14 +356,7 @@ public class TargetActivity extends Activity{
 		        Log.d("packageName--",packageName);
 		        String ActivityName = st.nextToken();
 		        Log.d("ActivityName--",packageName+ActivityName);
-		       // Intent intent = new Intent(TargetActivity.this,TargetActivity2.class);
-		        //intent.putExtra("TARGET", packageName);
-		       // intent.putExtra("Activity", ActivityName);
-		        //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		       // trystartActivity(intent);
-		        //if(context2!=null)context2.startActivity(intent);
-		        
-		       // intent2.setComponent(new ComponentName(packageName, packageName+ActivityName));
+//		       // intent2.setComponent(new ComponentName(packageName, packageName+ActivityName));
 //		        intent2.setComponent(new ComponentName("target.iser.ruc.edu.cn","target.iser.ruc.edu.cn.SecondActivity"));
 //		        intent2.writeToParcel(data, 0);
 //		        data.writeString(null);
@@ -387,16 +381,14 @@ public class TargetActivity extends Activity{
 //		        reply.recycle();
 //		        data.recycle();
 		        IBinder ib = getmRemote();
-			    bindApplication(AppThreadIso,packageName);
-			    scheduleLaunchActivity(AppThreadIso,packageName,ActivityName);
+			    bindApplication(ib,packageName);
+			    scheduleLaunchActivity(ib,packageName,ActivityName);
 			    int result=0;
 		        Log.d("ERR"," result--"+result);
 		        return result;
 			}
-
-
 	};
-
+	
 	private void getServiceManager(){
 		sServiceManager = (IInterface) Reflect.invokeMethod("android.os.ServiceManager", "getIServiceManager", null, null); 
 		System.out.println("sServiceManager of broker: "+sServiceManager);
@@ -417,10 +409,10 @@ public class TargetActivity extends Activity{
 		System.out.println("Broker PID: " + Process.myPid());		
 		setContentView(R.layout.targer_activity);
 		context= (Context) Reflect.invokeMethod("android.app.ContextImpl", "getImpl", null, (Context)this);
-		context2=this;
 		getCaller();
 		Intent intent = getIntent();
 		TARGET=intent.getStringExtra("TargetName");
+		Activity=intent.getStringExtra("Activity");
 		tv=(TextView)findViewById(R.id.textView1);
 		tv.append(TARGET);	
 		getServiceManager();
@@ -446,3 +438,4 @@ public class TargetActivity extends Activity{
 		return super.onOptionsItemSelected(item);
 	}
 }
+
